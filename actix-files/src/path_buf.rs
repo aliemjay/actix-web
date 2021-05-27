@@ -26,7 +26,9 @@ impl PathBufWrap {
 
         for segment in path.split('/') {
             if segment == ".." {
-                buf.pop();
+                if !buf.pop() {
+                    return Err(UriSegmentError::BadStart('.'));
+                }
             } else if !hidden_files && segment.starts_with('.') {
                 return Err(UriSegmentError::BadStart('.'));
             } else if segment.starts_with('*') {

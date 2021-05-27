@@ -1,4 +1,8 @@
-use std::{fmt, io, path::PathBuf, rc::Rc};
+use std::{
+    fmt, io,
+    path::{Component, PathBuf},
+    rc::Rc,
+};
 
 use actix_service::Service;
 use actix_utils::future::ok;
@@ -82,9 +86,19 @@ impl Service<ServiceRequest> for FilesService {
                 Err(e) => return Box::pin(ok(req.error_response(e))),
             };
 
+        if real_path
+            .as_ref()
+            .components()
+            .any(|c| !matches!(c, Component::Normal(_)))
+        {
+            // force Ok response to make test fail
+            return Box::pin(ok(req.into_response(HttpResponse::Ok().finish())));
+        }
+
         // full file path
         let path = self.directory.join(&real_path);
         if let Err(err) = path.canonicalize() {
+            eprintln!("path not found: {:?}", path.components());
             return Box::pin(self.handle_err(err, req));
         }
 
