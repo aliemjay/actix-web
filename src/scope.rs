@@ -393,19 +393,8 @@ where
             factory_ref: self.factory_ref,
         }
     }
-}
 
-impl<T> HttpServiceFactory for Scope<T>
-where
-    T: ServiceFactory<
-            ServiceRequest,
-            Config = (),
-            Response = ServiceResponse,
-            Error = Error,
-            InitError = (),
-        > + 'static,
-{
-    fn register(mut self, config: &mut AppService) {
+    fn _register(mut self, config: &mut AppService) {
         // update default resource if needed
         let default = self.default.unwrap_or_else(|| config.default_service());
 
@@ -424,7 +413,6 @@ where
 
         // complete scope pipeline creation
         *self.factory_ref.borrow_mut() = Some(ScopeFactory {
-            app_data: self.app_data.take().map(Rc::new),
             default,
             services: cfg
                 .into_services()
@@ -456,8 +444,30 @@ where
     }
 }
 
+impl<T> HttpServiceFactory for Scope<T>
+where
+    T: ServiceFactory<
+            ServiceRequest,
+            Config = (),
+            Response = ServiceResponse,
+            Error = Error,
+            InitError = (),
+        > + 'static,
+{
+    fn register(mut self, config: &mut AppService) {
+        if let Some(app_data) = self.app_data.take().map(Rc::new) {
+            self.wrap_fn(move |mut req, srv| {
+                req.add_data_container(Rc::clone(app_data));
+                srv.call(req)
+            })
+            ._register(config)
+        } else {
+            self._register(config)
+        }
+    }
+}
+
 pub struct ScopeFactory {
-    app_data: Option<Rc<Extensions>>,
     services: Rc<[(ResourceDef, HttpNewService, RefCell<Option<Guards>>)]>,
     default: Rc<HttpNewService>,
 }
@@ -485,8 +495,6 @@ impl ServiceFactory<ServiceRequest> for ScopeFactory {
             }
         }));
 
-        let app_data = self.app_data.clone();
-
         Box::pin(async move {
             let default = default_fut.await?;
 
@@ -502,17 +510,12 @@ impl ServiceFactory<ServiceRequest> for ScopeFactory {
                 })
                 .finish();
 
-            Ok(ScopeService {
-                app_data,
-                router,
-                default,
-            })
+            Ok(ScopeService { router, default })
         })
     }
 }
 
 pub struct ScopeService {
-    app_data: Option<Rc<Extensions>>,
     router: Router<HttpService, Vec<Box<dyn Guard>>>,
     default: HttpService,
 }
@@ -535,10 +538,6 @@ impl Service<ServiceRequest> for ScopeService {
             }
             true
         });
-
-        if let Some(ref app_data) = self.app_data {
-            req.add_data_container(app_data.clone());
-        }
 
         if let Some((srv, _info)) = res {
             srv.call(req)
@@ -988,6 +987,26 @@ mod tests {
             resp.headers().get(header::CONTENT_TYPE).unwrap(),
             HeaderValue::from_static("0001")
         );
+    }
+
+    #[actix_rt::test]
+    async fn test_middleware_app_data() {
+        let srv = init_service(
+            App::new().service(
+                web::scope("app")
+                    .app_data(1usize)
+                    .wrap_fn(|req, srv| {
+                        assert_eq!(req.app_data::<usize>(), Some(&1usize));
+                        srv.call(req)
+                    })
+                    .route("/test", web::get().to(HttpResponse::Ok)),
+            ),
+        )
+        .await;
+
+        let req = TestRequest::with_uri("/app/test").to_request();
+        let resp = call_service(&srv, req).await;
+        assert_eq!(resp.status(), StatusCode::OK);
     }
 
     #[actix_rt::test]
