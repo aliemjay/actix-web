@@ -393,19 +393,8 @@ where
             factory_ref: self.factory_ref,
         }
     }
-}
 
-impl<T> HttpServiceFactory for Scope<T>
-where
-    T: ServiceFactory<
-            ServiceRequest,
-            Config = (),
-            Response = ServiceResponse,
-            Error = Error,
-            InitError = (),
-        > + 'static,
-{
-    fn register(mut self, config: &mut AppService) {
+    fn _register(mut self, config: &mut AppService) {
         // update default resource if needed
         let default = self.default.unwrap_or_else(|| config.default_service());
 
@@ -445,21 +434,36 @@ where
             Some(self.guards)
         };
 
-        let app_data = self.app_data.take().map(Rc::new);
-        let endpoint = apply_fn_factory(self.endpoint, move |mut req: ServiceRequest, srv| {
-            if let Some(ref data) = app_data {
-                req.add_data_container(Rc::clone(data));
-            }
-            srv.call(req)
-        });
-
         // register final service
         config.register_service(
             ResourceDef::root_prefix(&self.rdef),
             guards,
-            endpoint,
+            self.endpoint,
             Some(Rc::new(rmap)),
         )
+    }
+}
+
+impl<T> HttpServiceFactory for Scope<T>
+where
+    T: ServiceFactory<
+            ServiceRequest,
+            Config = (),
+            Response = ServiceResponse,
+            Error = Error,
+            InitError = (),
+        > + 'static,
+{
+    fn register(mut self, config: &mut AppService) {
+        if let Some(app_data) = self.app_data.take().map(Rc::new) {
+            self.wrap_fn(move |mut req, srv| {
+                req.add_data_container(Rc::clone(app_data));
+                srv.call(req)
+            })
+            ._register(config)
+        } else {
+            self._register(config)
+        }
     }
 }
 
