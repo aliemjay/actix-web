@@ -76,6 +76,38 @@ pub trait FromRequest: Sized {
     }
 }
 
+pub trait FromRequestX<'a>: Sized {
+    /// Must be Self unless the extractor borrows request.
+    type Output;
+
+    /// The associated error which can be returned.
+    type Error: Into<Error>;
+
+    /// Future that resolves to a Self.
+    type Future: Future<Output = Result<Self::Output, Self::Error>>;
+
+    /// Create a Self from request parts asynchronously.
+    fn from_request_x(req: &'a HttpRequest, payload: &mut Payload) -> Self::Future;
+
+    /// Create a Self from request head asynchronously.
+    ///
+    /// This method is short for `T::from_request(req, &mut Payload::None)`.
+    fn extract_x(req: &'a HttpRequest) -> Self::Future {
+        Self::from_request_x(req, &mut Payload::None)
+    }
+}
+
+/*impl<'a, T: FromRequest> FromRequestX<'a> for T {
+    type Output = Self;
+    type Error = <Self as FromRequest>::Error;
+    type Future = <Self as FromRequest>::Future;
+
+    fn from_request_x(req: &'a HttpRequest, payload: &mut Payload) -> Self::Future {
+        Self::from_request(req, payload)
+    }
+}*/
+
+
 /// Optionally extract a field from the request
 ///
 /// If the FromRequest for T fails, return None rather than returning an error response
@@ -123,18 +155,18 @@ pub trait FromRequest: Sized {
 ///     );
 /// }
 /// ```
-impl<T: 'static> FromRequest for Option<T>
+impl<'a, T> FromRequestX<'a> for Option<T>
 where
-    T: FromRequest,
-    T::Future: 'static,
+    T: FromRequestX<'a>,
 {
+    type Output = Option<T::Output>;
     type Error = Error;
     type Future = FromRequestOptFuture<T::Future>;
 
     #[inline]
-    fn from_request(req: &HttpRequest, payload: &mut Payload) -> Self::Future {
+    fn from_request_x(req: &'a HttpRequest, payload: &mut Payload) -> Self::Future {
         FromRequestOptFuture {
-            fut: T::from_request(req, payload),
+            fut: T::from_request_x(req, payload),
         }
     }
 }
@@ -209,6 +241,7 @@ where
 ///     );
 /// }
 /// ```
+// TODO
 impl<T> FromRequest for Result<T, T::Error>
 where
     T: FromRequest + 'static,
@@ -263,6 +296,26 @@ impl FromRequest for Uri {
 
     fn from_request(req: &HttpRequest, _: &mut Payload) -> Self::Future {
         ok(req.uri().clone())
+    }
+}
+
+impl<'a> FromRequestX<'a> for &Uri {
+    type Output = &'a Uri;
+    type Error = Infallible;
+    type Future = Ready<Result<Self::Output, Self::Error>>;
+
+    fn from_request_x(req: &'a HttpRequest, _: &mut Payload) -> Self::Future {
+        ok(req.uri())
+    }
+}
+
+impl<'a> FromRequestX<'a> for &HttpRequest {
+    type Output = &'a HttpRequest;
+    type Error = Infallible;
+    type Future = Ready<Result<Self::Output, Self::Error>>;
+
+    fn from_request_x(req: &'a HttpRequest, _: &mut Payload) -> Self::Future {
+        ok(req)
     }
 }
 
@@ -379,6 +432,91 @@ macro_rules! tuple_from_req ({$fut_type:ident, $(($n:tt, $T:ident)),+} => {
     }
 });
 
+macro_rules! tuple_from_req_x ({$fut_type:ident, $(($n:tt, $T:ident)),+} => {
+
+    // This module is a trick to get around the inability of
+    // `macro_rules!` macros to make new idents. We want to make
+    // a new `FutWrapper` struct for each distinct invocation of
+    // this macro. Ideally, we would name it something like
+    // `FutWrapper_$fut_type`, but this can't be done in a macro_rules
+    // macro.
+    //
+    // Instead, we put everything in a module named `$fut_type`, thus allowing
+    // us to use the name `FutWrapper` without worrying about conflicts.
+    // This macro only exists to generate trait impls for tuples - these
+    // are inherently global, so users don't have to care about this
+    // weird trick.
+    #[allow(non_snake_case)]
+    mod $fut_type {
+
+        // Bring everything into scope, so we don't need
+        // redundant imports
+        use super::*;
+        
+        use std::marker::PhantomData;
+
+        /// A helper struct to allow us to pin-project through
+        /// to individual fields
+        #[pin_project::pin_project]
+        struct FutWrapper<'a, $($T: FromRequestX<'a>),+>($(#[pin] $T::Future,)+ PhantomData<&'a ()>);
+
+        /// FromRequest implementation for tuple
+        #[doc(hidden)]
+        #[allow(unused_parens)]
+        impl<'a, $($T: FromRequestX<'a>),+> FromRequestX<'a> for ($($T,)+)
+        {
+            type Output = ($($T::Output,)+);
+            type Error = Error;
+            type Future = $fut_type<'a, $($T),+>;
+
+            fn from_request_x(req: &'a HttpRequest, payload: &mut Payload) -> Self::Future {
+                $fut_type {
+                    items: <($(Option<$T::Output>,)+)>::default(),
+                    futs: FutWrapper($($T::from_request_x(req, payload),)+ PhantomData),
+                }
+            }
+        }
+
+        #[doc(hidden)]
+        #[pin_project::pin_project]
+        pub struct $fut_type<'a, $($T: FromRequestX<'a>),+> {
+            items: ($(Option<$T::Output>,)+),
+            #[pin]
+            futs: FutWrapper<'a, $($T,)+>,
+        }
+
+        impl<'a, $($T: FromRequestX<'a>),+> Future for $fut_type<'a, $($T),+>
+        {
+            type Output = Result<($($T::Output,)+), Error>;
+
+            fn poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
+                let mut this = self.project();
+
+                let mut ready = true;
+                $(
+                    if this.items.$n.is_none() {
+                        match this.futs.as_mut().project().$n.poll(cx) {
+                            Poll::Ready(Ok(item)) => {
+                                this.items.$n = Some(item);
+                            }
+                            Poll::Pending => ready = false,
+                            Poll::Ready(Err(e)) => return Poll::Ready(Err(e.into())),
+                        }
+                    }
+                )+
+
+                if ready {
+                    Poll::Ready(Ok(
+                        ($(this.items.$n.take().unwrap(),)+)
+                    ))
+                } else {
+                    Poll::Pending
+                }
+            }
+        }
+    }
+});
+
 #[rustfmt::skip]
 mod m {
     use super::*;
@@ -393,6 +531,17 @@ mod m {
     tuple_from_req!(TupleFromRequest8, (0, A), (1, B), (2, C), (3, D), (4, E), (5, F), (6, G), (7, H));
     tuple_from_req!(TupleFromRequest9, (0, A), (1, B), (2, C), (3, D), (4, E), (5, F), (6, G), (7, H), (8, I));
     tuple_from_req!(TupleFromRequest10, (0, A), (1, B), (2, C), (3, D), (4, E), (5, F), (6, G), (7, H), (8, I), (9, J));
+
+    tuple_from_req_x!(TupleFromRequestX1, (0, A));
+    tuple_from_req_x!(TupleFromRequestX2, (0, A), (1, B));
+    tuple_from_req_x!(TupleFromRequestX3, (0, A), (1, B), (2, C));
+    tuple_from_req_x!(TupleFromRequestX4, (0, A), (1, B), (2, C), (3, D));
+    tuple_from_req_x!(TupleFromRequestX5, (0, A), (1, B), (2, C), (3, D), (4, E));
+    tuple_from_req_x!(TupleFromRequestX6, (0, A), (1, B), (2, C), (3, D), (4, E), (5, F));
+    tuple_from_req_x!(TupleFromRequestX7, (0, A), (1, B), (2, C), (3, D), (4, E), (5, F), (6, G));
+    tuple_from_req_x!(TupleFromRequestX8, (0, A), (1, B), (2, C), (3, D), (4, E), (5, F), (6, G), (7, H));
+    tuple_from_req_x!(TupleFromRequestX9, (0, A), (1, B), (2, C), (3, D), (4, E), (5, F), (6, G), (7, H), (8, I));
+    tuple_from_req_x!(TupleFromRequestX10, (0, A), (1, B), (2, C), (3, D), (4, E), (5, F), (6, G), (7, H), (8, I), (9, J));
 }
 
 #[cfg(test)]

@@ -1,178 +1,30 @@
 name: CI
 
-on:
-  pull_request:
-    types: [opened, synchronize, reopened]
-  push:
-    branches: [master]
+on: [push, pull_request]
 
 jobs:
-  build_and_test:
+  check:
+    name: Check
+    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        target:
-          - { name: Linux, os: ubuntu-latest, triple: x86_64-unknown-linux-gnu }
-          - { name: macOS, os: macos-latest, triple: x86_64-apple-darwin }
-          - { name: Windows, os: windows-2022, triple: x86_64-pc-windows-msvc }
-        version:
-          - 1.52.0 # MSRV
+        rust:
+          - 1.52.0
+          - 1.53.0
+          - 1.54.0
+          - 1.55.0
+          - 1.56.0
           - stable
           - nightly
-
-    name: ${{ matrix.target.name }} / ${{ matrix.version }}
-    runs-on: ${{ matrix.target.os }}
-
-    env:
-      CI: 1
-      CARGO_INCREMENTAL: 0
-      VCPKGRS_DYNAMIC: 1
-
+    name: Rust ${{ matrix.rust }}
     steps:
       - uses: actions/checkout@v2
-
-      # install OpenSSL on Windows
-      # TODO: GitHub actions docs state that OpenSSL is
-      # already installed on these Windows machines somewhere
-      - name: Set vcpkg root
-        if: matrix.target.triple == 'x86_64-pc-windows-msvc'
-        run: echo "VCPKG_ROOT=$env:VCPKG_INSTALLATION_ROOT" | Out-File -FilePath $env:GITHUB_ENV -Append
-      - name: Install OpenSSL
-        if: matrix.target.triple == 'x86_64-pc-windows-msvc'
-        run: vcpkg install openssl:x64-windows
-
-      - name: Install ${{ matrix.version }}
-        uses: actions-rs/toolchain@v1
+      - uses: actions-rs/toolchain@v1
         with:
-          toolchain: ${{ matrix.version }}-${{ matrix.target.triple }}
           profile: minimal
+          toolchain: ${{ matrix.rust }}
           override: true
-
-      - name: Generate Cargo.lock
-        uses: actions-rs/cargo@v1
-        with: { command: generate-lockfile }
-      - name: Cache Dependencies
-        uses: Swatinem/rust-cache@v1.2.0
-
-      - name: Install cargo-hack
-        uses: actions-rs/cargo@v1
+      - uses: actions-rs/cargo@v1
         with:
-          command: install
-          args: cargo-hack
-
-      - name: check minimal
-        uses: actions-rs/cargo@v1
-        with: { command: ci-min }
-
-      - name: check minimal + tests
-        uses: actions-rs/cargo@v1
-        with: { command: ci-min-test }
-
-      - name: check default
-        uses: actions-rs/cargo@v1
-        with: { command: ci-default }
-      
-      - name: check full
-        uses: actions-rs/cargo@v1
-        with: { command: ci-full }
-
-      - name: tests
-        uses: actions-rs/cargo@v1
-        timeout-minutes: 40
-        with:
-          command: ci-test
-          args: --skip=test_reading_deflate_encoding_large_random_rustls
-
-      - name: Clear the cargo caches
-        run: |
-          cargo install cargo-cache --version 0.6.3 --no-default-features --features ci-autoclean
-          cargo-cache
-
-  ci_feature_powerset_check:
-    name: Verify Feature Combinations
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-
-      - name: Install stable
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable-x86_64-unknown-linux-gnu
-          profile: minimal
-          override: true
-
-      - name: Generate Cargo.lock
-        uses: actions-rs/cargo@v1
-        with: { command: generate-lockfile }
-      - name: Cache Dependencies
-        uses: Swatinem/rust-cache@v1.2.0
-
-      - name: Install cargo-hack
-        uses: actions-rs/cargo@v1
-        with:
-          command: install
-          args: cargo-hack
-
-      - name: check feature combinations
-        # if: github.ref == 'refs/heads/master'
-        uses: actions-rs/cargo@v1
-        with: { command: ci-feature-powerset-check-all }
-
-  coverage:
-    name: coverage
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-
-      - name: Install stable
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable-x86_64-unknown-linux-gnu
-          profile: minimal
-          override: true
-
-      - name: Generate Cargo.lock
-        uses: actions-rs/cargo@v1
-        with: { command: generate-lockfile }
-      - name: Cache Dependencies
-        uses: Swatinem/rust-cache@v1.2.0
-
-      - name: Generate coverage file
-        if: github.ref == 'refs/heads/master'
-        run: |
-          cargo install cargo-tarpaulin --vers "^0.13"
-          cargo tarpaulin --out Xml --verbose
-      - name: Upload to Codecov
-        if: github.ref == 'refs/heads/master'
-        uses: codecov/codecov-action@v1
-        with: { file: cobertura.xml }
-
-  rustdoc:
-    name: rustdoc
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-
-      - name: Install Rust (nightly)
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: nightly-x86_64-unknown-linux-gnu
-          profile: minimal
-          override: true
-
-      - name: Generate Cargo.lock
-        uses: actions-rs/cargo@v1
-        with: { command: generate-lockfile }
-      - name: Cache Dependencies
-        uses: Swatinem/rust-cache@v1.3.0
-
-      - name: Install cargo-hack
-        uses: actions-rs/cargo@v1
-        with:
-          command: install
-          args: cargo-hack
-
-      - name: doc tests
-        uses: actions-rs/cargo@v1
-        timeout-minutes: 40
-        with: { command: ci-doctest }
+          command: check

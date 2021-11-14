@@ -9,6 +9,8 @@ use futures_core::ready;
 use pin_project::pin_project;
 
 use crate::{
+    extract::FromRequestX,
+    dev::Payload,
     service::{ServiceRequest, ServiceResponse},
     Error, FromRequest, HttpRequest, HttpResponse, Responder,
 };
@@ -25,6 +27,31 @@ where
     R::Output: Responder,
 {
     fn call(&self, param: T) -> R;
+}
+
+pub trait HandlerX<'a, T>: Clone + 'static {
+    type Response: Responder + 'static;
+    type Error: Into<Error>;
+    type Future: Future<Output = Result<Self::Response, Self::Error>>;
+    fn call(&'a self, _: &'a HttpRequest, _: &'a mut Payload) -> Self::Future;
+}
+
+impl<'a, F, T, Fut, Resp> HandlerX<'a, T> for F
+where
+    F: FnX<T>,
+    F: FnX<T::Output, Output = Fut>,
+    F: Clone + 'static,
+    T: FromRequestX<'a>,
+    Fut: Future<Output = Resp>,
+    Resp: Responder + 'static,
+{
+    type Response = Resp;
+    type Error = T::Error;
+    type Future = Pin<Box<dyn Future<Output = Result<Resp, T::Error>> + 'a>>;
+
+    fn call(&'a self, req: &'a HttpRequest, payload: &'a mut Payload) -> Self::Future {
+        Box::pin(async move { Ok(self.call(T::from_request_x(req, payload).await?).await) })
+    }
 }
 
 #[doc(hidden)]
@@ -162,6 +189,11 @@ where
     }
 }
 
+pub trait FnX<Args> {
+    type Output;
+    fn call(&self, args: Args) -> Self::Output;
+}
+
 /// FromRequest trait impl for tuples
 macro_rules! factory_tuple ({ $($param:ident)* } => {
     impl<Func, $($param,)* Res> Handler<($($param,)*), Res> for Func
@@ -171,6 +203,17 @@ macro_rules! factory_tuple ({ $($param:ident)* } => {
     {
         #[allow(non_snake_case)]
         fn call(&self, ($($param,)*): ($($param,)*)) -> Res {
+            (self)($($param,)*)
+        }
+    }
+
+    impl<Func, $($param,)* O> FnX<($($param,)*)> for Func
+    where Func: Fn($($param),*) -> O,
+    {
+        type Output = O;
+
+        #[allow(non_snake_case)]
+        fn call(&self, ($($param,)*): ($($param,)*)) -> O {
             (self)($($param,)*)
         }
     }
@@ -189,3 +232,21 @@ factory_tuple! { A B C D E F G H I }
 factory_tuple! { A B C D E F G H I J }
 factory_tuple! { A B C D E F G H I J K }
 factory_tuple! { A B C D E F G H I J K L }
+
+mod test {
+    use super::*;
+
+    type Req = HttpRequest;
+
+    fn check<T, F: for<'a> HandlerX<'a, T>>(_: F) {}
+
+    async fn handler(_: &Req, _: (&Req, &Req)) -> &'static str {
+        "hello"
+    }
+
+    fn test() {
+        check(handler);
+
+        check(|_: (&Req, &Req), _: &Req| async { "hello" });
+    }
+}
