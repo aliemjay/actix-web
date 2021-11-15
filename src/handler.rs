@@ -29,14 +29,10 @@ where
     fn call(&self, param: T) -> R;
 }
 
-pub trait HandlerX<'a, T>: Clone + 'static {
+pub trait HandlerX<'a, T: FromRequestX<'a>>: Clone + 'static {
     type Response: Responder + 'static;
-    type Error: Into<Error>;
-    type Extractor;
-    type ExtractFuture: Future<Output = Result<Self::Extractor, Self::Error>>;
     type HandlerFuture: Future<Output = Self::Response>;
-    fn extract(_: &'a HttpRequest, _: &'a mut Payload) -> Self::ExtractFuture;
-    fn handle(&'a self, _ :Self::Extractor) -> Self::HandlerFuture;
+    fn handle(&'a self, _ :T::Output) -> Self::HandlerFuture;
 }
 
 impl<'a, F, T, Fut, Resp> HandlerX<'a, T> for F
@@ -49,16 +45,9 @@ where
     Resp: Responder + 'static,
 {
     type Response = Resp;
-    type Error = T::Error;
-    type Extractor = T::Output;
-    type ExtractFuture = T::Future;
     type HandlerFuture = Fut;
 
-    fn extract(req: &'a HttpRequest, payload: &'a mut Payload) -> Self::ExtractFuture {
-        T::from_request_x(req, payload)
-    }
-
-    fn handle(&'a self, data :Self::Extractor) -> Self::HandlerFuture {
+    fn handle(&'a self, data :T::Output) -> Self::HandlerFuture {
         self.call(data)
     }
 }
@@ -198,6 +187,7 @@ where
     }
 }
 
+/// Same as [`std::ops::Fn`]
 pub trait FnX<Args> {
     type Output;
     fn call(&self, args: Args) -> Self::Output;
@@ -248,11 +238,11 @@ mod test {
     type Req = HttpRequest;
 
     fn check<T, F, R>(req: ServiceRequest, f: F) -> impl Future<Output = Result<R, Error>> + 'static
-    where F: for<'a> HandlerX<'a, T, Response = R>,
+    where F: for<'a> HandlerX<'a, T, Response = R>, T: for<'a> FromRequestX<'a>,
     {
         async move {
             let (req, mut payload)  = req.into_parts();
-            let data = F::extract(&req, &mut payload).await.map_err(|e| e.into())?;
+            let data = T::from_request_x(&req, &mut payload).await.map_err(|e| e.into())?;
             Ok(f.handle(data).await)
         }
     }
