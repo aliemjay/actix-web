@@ -1,6 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `actix-test/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg">
-<link rel="alternate icon" type="image/png" href="../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../actix_test/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img src="../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `actix-test&#x2F;src&#x2F;lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../actix_test/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -519,8 +517,7 @@
 <span id="517">517</span>
 <span id="518">518</span>
 <span id="519">519</span>
-</pre><pre class="rust">
-<span class="doccomment">//! Integration testing tools for Actix Web applications.</span>
+</pre><pre class="rust"><code><span class="doccomment">//! Integration testing tools for Actix Web applications.</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! The main integration testing tool is [`TestServer`]. It spawns a real HTTP server on an</span>
 <span class="doccomment">//! unused port and provides methods that use a real HTTP client. Therefore, it is much closer to</span>
@@ -586,7 +583,7 @@
 <span class="doccomment">///     Ok(HttpResponse::Ok())</span>
 <span class="doccomment">/// }</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// #[actix_rt::test]</span>
+<span class="doccomment">/// #[actix_web::test]</span>
 <span class="doccomment">/// async fn test_example() {</span>
 <span class="doccomment">///     let srv = actix_test::start(||</span>
 <span class="doccomment">///         App::new().service(my_handler)</span>
@@ -598,9 +595,9 @@
 <span class="doccomment">///     assert!(res.status().is_success());</span>
 <span class="doccomment">/// }</span>
 <span class="doccomment">/// ```</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">start</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">I</span>, <span class="ident">S</span>, <span class="ident">B</span><span class="op">&gt;</span>(<span class="ident">factory</span>: <span class="ident">F</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TestServer</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">start</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">I</span>, <span class="ident">S</span>, <span class="ident">B</span><span class="op">&gt;</span>(<span class="ident">factory</span>: <span class="ident">F</span>) -&gt; <span class="ident">TestServer</span>
 <span class="kw">where</span>
-    <span class="ident">F</span>: <span class="ident">Fn</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">I</span> <span class="op">+</span> <span class="ident">Send</span> <span class="op">+</span> <span class="ident">Clone</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+    <span class="ident">F</span>: <span class="ident">Fn</span>() -&gt; <span class="ident">I</span> <span class="op">+</span> <span class="ident">Send</span> <span class="op">+</span> <span class="ident">Clone</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
     <span class="ident">I</span>: <span class="ident">IntoServiceFactory</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">Request</span><span class="op">&gt;</span>,
     <span class="ident">S</span>: <span class="ident">ServiceFactory</span><span class="op">&lt;</span><span class="ident">Request</span>, <span class="ident">Config</span> <span class="op">=</span> <span class="ident">AppConfig</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
     <span class="ident">S::Error</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Error</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
@@ -626,7 +623,7 @@
 <span class="doccomment">///     Ok(HttpResponse::Ok())</span>
 <span class="doccomment">/// }</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// #[actix_rt::test]</span>
+<span class="doccomment">/// #[actix_web::test]</span>
 <span class="doccomment">/// async fn test_example() {</span>
 <span class="doccomment">///     let srv = actix_test::start_with(actix_test::config().h1(), ||</span>
 <span class="doccomment">///         App::new().service(my_handler)</span>
@@ -638,9 +635,9 @@
 <span class="doccomment">///     assert!(res.status().is_success());</span>
 <span class="doccomment">/// }</span>
 <span class="doccomment">/// ```</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">start_with</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">I</span>, <span class="ident">S</span>, <span class="ident">B</span><span class="op">&gt;</span>(<span class="ident">cfg</span>: <span class="ident">TestServerConfig</span>, <span class="ident">factory</span>: <span class="ident">F</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TestServer</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">start_with</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">I</span>, <span class="ident">S</span>, <span class="ident">B</span><span class="op">&gt;</span>(<span class="ident">cfg</span>: <span class="ident">TestServerConfig</span>, <span class="ident">factory</span>: <span class="ident">F</span>) -&gt; <span class="ident">TestServer</span>
 <span class="kw">where</span>
-    <span class="ident">F</span>: <span class="ident">Fn</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">I</span> <span class="op">+</span> <span class="ident">Send</span> <span class="op">+</span> <span class="ident">Clone</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+    <span class="ident">F</span>: <span class="ident">Fn</span>() -&gt; <span class="ident">I</span> <span class="op">+</span> <span class="ident">Send</span> <span class="op">+</span> <span class="ident">Clone</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
     <span class="ident">I</span>: <span class="ident">IntoServiceFactory</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">Request</span><span class="op">&gt;</span>,
     <span class="ident">S</span>: <span class="ident">ServiceFactory</span><span class="op">&lt;</span><span class="ident">Request</span>, <span class="ident">Config</span> <span class="op">=</span> <span class="ident">AppConfig</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
     <span class="ident">S::Error</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Error</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
@@ -653,11 +650,11 @@
     <span class="kw">let</span> (<span class="ident">tx</span>, <span class="ident">rx</span>) <span class="op">=</span> <span class="ident">mpsc::channel</span>();
 
     <span class="kw">let</span> <span class="ident">tls</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">cfg</span>.<span class="ident">stream</span> {
-        <span class="ident">StreamType::Tcp</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
+        <span class="ident">StreamType::Tcp</span> =&gt; <span class="bool-val">false</span>,
         <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;openssl&quot;</span>)]</span>
-        <span class="ident">StreamType::Openssl</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
+        <span class="ident">StreamType::Openssl</span>(<span class="kw">_</span>) =&gt; <span class="bool-val">true</span>,
         <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls&quot;</span>)]</span>
-        <span class="ident">StreamType::Rustls</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
+        <span class="ident">StreamType::Rustls</span>(<span class="kw">_</span>) =&gt; <span class="bool-val">true</span>,
     };
 
     <span class="comment">// run server in separate thread</span>
@@ -671,8 +668,8 @@
         <span class="kw">let</span> <span class="ident">builder</span> <span class="op">=</span> <span class="ident">Server::build</span>().<span class="ident">workers</span>(<span class="number">1</span>).<span class="ident">disable_signals</span>();
 
         <span class="kw">let</span> <span class="ident">srv</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">srv_cfg</span>.<span class="ident">stream</span> {
-            <span class="ident">StreamType::Tcp</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">srv_cfg</span>.<span class="ident">tp</span> {
-                <span class="ident">HttpVer::Http1</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">builder</span>.<span class="ident">listen</span>(<span class="string">&quot;test&quot;</span>, <span class="ident">tcp</span>, <span class="kw">move</span> <span class="op">|</span><span class="op">|</span> {
+            <span class="ident">StreamType::Tcp</span> =&gt; <span class="kw">match</span> <span class="ident">srv_cfg</span>.<span class="ident">tp</span> {
+                <span class="ident">HttpVer::Http1</span> =&gt; <span class="ident">builder</span>.<span class="ident">listen</span>(<span class="string">&quot;test&quot;</span>, <span class="ident">tcp</span>, <span class="kw">move</span> <span class="op">|</span><span class="op">|</span> {
                     <span class="kw">let</span> <span class="ident">app_cfg</span> <span class="op">=</span>
                         <span class="ident">AppConfig::__priv_test_new</span>(<span class="bool-val">false</span>, <span class="ident">local_addr</span>.<span class="ident">to_string</span>(), <span class="ident">local_addr</span>);
 
@@ -685,7 +682,7 @@
                         .<span class="ident">h1</span>(<span class="ident">map_config</span>(<span class="ident">fac</span>, <span class="kw">move</span> <span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">app_cfg</span>.<span class="ident">clone</span>()))
                         .<span class="ident">tcp</span>()
                 }),
-                <span class="ident">HttpVer::Http2</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">builder</span>.<span class="ident">listen</span>(<span class="string">&quot;test&quot;</span>, <span class="ident">tcp</span>, <span class="kw">move</span> <span class="op">|</span><span class="op">|</span> {
+                <span class="ident">HttpVer::Http2</span> =&gt; <span class="ident">builder</span>.<span class="ident">listen</span>(<span class="string">&quot;test&quot;</span>, <span class="ident">tcp</span>, <span class="kw">move</span> <span class="op">|</span><span class="op">|</span> {
                     <span class="kw">let</span> <span class="ident">app_cfg</span> <span class="op">=</span>
                         <span class="ident">AppConfig::__priv_test_new</span>(<span class="bool-val">false</span>, <span class="ident">local_addr</span>.<span class="ident">to_string</span>(), <span class="ident">local_addr</span>);
 
@@ -698,7 +695,7 @@
                         .<span class="ident">h2</span>(<span class="ident">map_config</span>(<span class="ident">fac</span>, <span class="kw">move</span> <span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">app_cfg</span>.<span class="ident">clone</span>()))
                         .<span class="ident">tcp</span>()
                 }),
-                <span class="ident">HttpVer::Both</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">builder</span>.<span class="ident">listen</span>(<span class="string">&quot;test&quot;</span>, <span class="ident">tcp</span>, <span class="kw">move</span> <span class="op">|</span><span class="op">|</span> {
+                <span class="ident">HttpVer::Both</span> =&gt; <span class="ident">builder</span>.<span class="ident">listen</span>(<span class="string">&quot;test&quot;</span>, <span class="ident">tcp</span>, <span class="kw">move</span> <span class="op">|</span><span class="op">|</span> {
                     <span class="kw">let</span> <span class="ident">app_cfg</span> <span class="op">=</span>
                         <span class="ident">AppConfig::__priv_test_new</span>(<span class="bool-val">false</span>, <span class="ident">local_addr</span>.<span class="ident">to_string</span>(), <span class="ident">local_addr</span>);
 
@@ -713,8 +710,8 @@
                 }),
             },
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;openssl&quot;</span>)]</span>
-            <span class="ident">StreamType::Openssl</span>(<span class="ident">acceptor</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">cfg</span>.<span class="ident">tp</span> {
-                <span class="ident">HttpVer::Http1</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">builder</span>.<span class="ident">listen</span>(<span class="string">&quot;test&quot;</span>, <span class="ident">tcp</span>, <span class="kw">move</span> <span class="op">|</span><span class="op">|</span> {
+            <span class="ident">StreamType::Openssl</span>(<span class="ident">acceptor</span>) =&gt; <span class="kw">match</span> <span class="ident">cfg</span>.<span class="ident">tp</span> {
+                <span class="ident">HttpVer::Http1</span> =&gt; <span class="ident">builder</span>.<span class="ident">listen</span>(<span class="string">&quot;test&quot;</span>, <span class="ident">tcp</span>, <span class="kw">move</span> <span class="op">|</span><span class="op">|</span> {
                     <span class="kw">let</span> <span class="ident">app_cfg</span> <span class="op">=</span>
                         <span class="ident">AppConfig::__priv_test_new</span>(<span class="bool-val">false</span>, <span class="ident">local_addr</span>.<span class="ident">to_string</span>(), <span class="ident">local_addr</span>);
 
@@ -727,7 +724,7 @@
                         .<span class="ident">h1</span>(<span class="ident">map_config</span>(<span class="ident">fac</span>, <span class="kw">move</span> <span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">app_cfg</span>.<span class="ident">clone</span>()))
                         .<span class="ident">openssl</span>(<span class="ident">acceptor</span>.<span class="ident">clone</span>())
                 }),
-                <span class="ident">HttpVer::Http2</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">builder</span>.<span class="ident">listen</span>(<span class="string">&quot;test&quot;</span>, <span class="ident">tcp</span>, <span class="kw">move</span> <span class="op">|</span><span class="op">|</span> {
+                <span class="ident">HttpVer::Http2</span> =&gt; <span class="ident">builder</span>.<span class="ident">listen</span>(<span class="string">&quot;test&quot;</span>, <span class="ident">tcp</span>, <span class="kw">move</span> <span class="op">|</span><span class="op">|</span> {
                     <span class="kw">let</span> <span class="ident">app_cfg</span> <span class="op">=</span>
                         <span class="ident">AppConfig::__priv_test_new</span>(<span class="bool-val">false</span>, <span class="ident">local_addr</span>.<span class="ident">to_string</span>(), <span class="ident">local_addr</span>);
 
@@ -740,7 +737,7 @@
                         .<span class="ident">h2</span>(<span class="ident">map_config</span>(<span class="ident">fac</span>, <span class="kw">move</span> <span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">app_cfg</span>.<span class="ident">clone</span>()))
                         .<span class="ident">openssl</span>(<span class="ident">acceptor</span>.<span class="ident">clone</span>())
                 }),
-                <span class="ident">HttpVer::Both</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">builder</span>.<span class="ident">listen</span>(<span class="string">&quot;test&quot;</span>, <span class="ident">tcp</span>, <span class="kw">move</span> <span class="op">|</span><span class="op">|</span> {
+                <span class="ident">HttpVer::Both</span> =&gt; <span class="ident">builder</span>.<span class="ident">listen</span>(<span class="string">&quot;test&quot;</span>, <span class="ident">tcp</span>, <span class="kw">move</span> <span class="op">|</span><span class="op">|</span> {
                     <span class="kw">let</span> <span class="ident">app_cfg</span> <span class="op">=</span>
                         <span class="ident">AppConfig::__priv_test_new</span>(<span class="bool-val">false</span>, <span class="ident">local_addr</span>.<span class="ident">to_string</span>(), <span class="ident">local_addr</span>);
 
@@ -755,8 +752,8 @@
                 }),
             },
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls&quot;</span>)]</span>
-            <span class="ident">StreamType::Rustls</span>(<span class="ident">config</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">cfg</span>.<span class="ident">tp</span> {
-                <span class="ident">HttpVer::Http1</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">builder</span>.<span class="ident">listen</span>(<span class="string">&quot;test&quot;</span>, <span class="ident">tcp</span>, <span class="kw">move</span> <span class="op">|</span><span class="op">|</span> {
+            <span class="ident">StreamType::Rustls</span>(<span class="ident">config</span>) =&gt; <span class="kw">match</span> <span class="ident">cfg</span>.<span class="ident">tp</span> {
+                <span class="ident">HttpVer::Http1</span> =&gt; <span class="ident">builder</span>.<span class="ident">listen</span>(<span class="string">&quot;test&quot;</span>, <span class="ident">tcp</span>, <span class="kw">move</span> <span class="op">|</span><span class="op">|</span> {
                     <span class="kw">let</span> <span class="ident">app_cfg</span> <span class="op">=</span>
                         <span class="ident">AppConfig::__priv_test_new</span>(<span class="bool-val">false</span>, <span class="ident">local_addr</span>.<span class="ident">to_string</span>(), <span class="ident">local_addr</span>);
 
@@ -769,7 +766,7 @@
                         .<span class="ident">h1</span>(<span class="ident">map_config</span>(<span class="ident">fac</span>, <span class="kw">move</span> <span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">app_cfg</span>.<span class="ident">clone</span>()))
                         .<span class="ident">rustls</span>(<span class="ident">config</span>.<span class="ident">clone</span>())
                 }),
-                <span class="ident">HttpVer::Http2</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">builder</span>.<span class="ident">listen</span>(<span class="string">&quot;test&quot;</span>, <span class="ident">tcp</span>, <span class="kw">move</span> <span class="op">|</span><span class="op">|</span> {
+                <span class="ident">HttpVer::Http2</span> =&gt; <span class="ident">builder</span>.<span class="ident">listen</span>(<span class="string">&quot;test&quot;</span>, <span class="ident">tcp</span>, <span class="kw">move</span> <span class="op">|</span><span class="op">|</span> {
                     <span class="kw">let</span> <span class="ident">app_cfg</span> <span class="op">=</span>
                         <span class="ident">AppConfig::__priv_test_new</span>(<span class="bool-val">false</span>, <span class="ident">local_addr</span>.<span class="ident">to_string</span>(), <span class="ident">local_addr</span>);
 
@@ -782,7 +779,7 @@
                         .<span class="ident">h2</span>(<span class="ident">map_config</span>(<span class="ident">fac</span>, <span class="kw">move</span> <span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">app_cfg</span>.<span class="ident">clone</span>()))
                         .<span class="ident">rustls</span>(<span class="ident">config</span>.<span class="ident">clone</span>())
                 }),
-                <span class="ident">HttpVer::Both</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">builder</span>.<span class="ident">listen</span>(<span class="string">&quot;test&quot;</span>, <span class="ident">tcp</span>, <span class="kw">move</span> <span class="op">|</span><span class="op">|</span> {
+                <span class="ident">HttpVer::Both</span> =&gt; <span class="ident">builder</span>.<span class="ident">listen</span>(<span class="string">&quot;test&quot;</span>, <span class="ident">tcp</span>, <span class="kw">move</span> <span class="op">|</span><span class="op">|</span> {
                     <span class="kw">let</span> <span class="ident">app_cfg</span> <span class="op">=</span>
                         <span class="ident">AppConfig::__priv_test_new</span>(<span class="bool-val">false</span>, <span class="ident">local_addr</span>.<span class="ident">to_string</span>(), <span class="ident">local_addr</span>);
 
@@ -862,7 +859,7 @@
 }
 
 <span class="doccomment">/// Create default test server config.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">config</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TestServerConfig</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">config</span>() -&gt; <span class="ident">TestServerConfig</span> {
     <span class="ident">TestServerConfig::default</span>()
 }
 
@@ -874,14 +871,14 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">TestServerConfig</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="self">Self</span> {
         <span class="ident">TestServerConfig::new</span>()
     }
 }
 
 <span class="kw">impl</span> <span class="ident">TestServerConfig</span> {
     <span class="doccomment">/// Create default server configuration</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TestServerConfig</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="ident">TestServerConfig</span> {
         <span class="ident">TestServerConfig</span> {
             <span class="ident">tp</span>: <span class="ident">HttpVer::Both</span>,
             <span class="ident">stream</span>: <span class="ident">StreamType::Tcp</span>,
@@ -890,33 +887,33 @@
     }
 
     <span class="doccomment">/// Accept HTTP/1.1 only.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">h1</span>(<span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">h1</span>(<span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">tp</span> <span class="op">=</span> <span class="ident">HttpVer::Http1</span>;
         <span class="self">self</span>
     }
 
     <span class="doccomment">/// Accept HTTP/2 only.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">h2</span>(<span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">h2</span>(<span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">tp</span> <span class="op">=</span> <span class="ident">HttpVer::Http2</span>;
         <span class="self">self</span>
     }
 
     <span class="doccomment">/// Accept secure connections via OpenSSL.</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;openssl&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">openssl</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">acceptor</span>: <span class="ident">openssl::ssl::SslAcceptor</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">openssl</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">acceptor</span>: <span class="ident">openssl::ssl::SslAcceptor</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">stream</span> <span class="op">=</span> <span class="ident">StreamType::Openssl</span>(<span class="ident">acceptor</span>);
         <span class="self">self</span>
     }
 
     <span class="doccomment">/// Accept secure connections via Rustls.</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">rustls</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">config</span>: <span class="ident">rustls::ServerConfig</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">rustls</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">config</span>: <span class="ident">rustls::ServerConfig</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">stream</span> <span class="op">=</span> <span class="ident">StreamType::Rustls</span>(<span class="ident">config</span>);
         <span class="self">self</span>
     }
 
     <span class="doccomment">/// Set client timeout in milliseconds for first request.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">client_timeout</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">val</span>: <span class="ident">u64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">client_timeout</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">val</span>: <span class="ident">u64</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">client_timeout</span> <span class="op">=</span> <span class="ident">val</span>;
         <span class="self">self</span>
     }
@@ -936,12 +933,12 @@
 
 <span class="kw">impl</span> <span class="ident">TestServer</span> {
     <span class="doccomment">/// Construct test server url</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">addr</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">net::SocketAddr</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">addr</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">net::SocketAddr</span> {
         <span class="self">self</span>.<span class="ident">addr</span>
     }
 
     <span class="doccomment">/// Construct test server url</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">url</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">uri</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">url</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">uri</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">String</span> {
         <span class="kw">let</span> <span class="ident">scheme</span> <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">tls</span> { <span class="string">&quot;https&quot;</span> } <span class="kw">else</span> { <span class="string">&quot;http&quot;</span> };
 
         <span class="kw">if</span> <span class="ident">uri</span>.<span class="ident">starts_with</span>(<span class="string">&#39;/&#39;</span>) {
@@ -952,49 +949,49 @@
     }
 
     <span class="doccomment">/// Create `GET` request.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">path</span>: <span class="kw">impl</span> <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ClientRequest</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">path</span>: <span class="kw">impl</span> <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span>) -&gt; <span class="ident">ClientRequest</span> {
         <span class="self">self</span>.<span class="ident">client</span>.<span class="ident">get</span>(<span class="self">self</span>.<span class="ident">url</span>(<span class="ident">path</span>.<span class="ident">as_ref</span>()).<span class="ident">as_str</span>())
     }
 
     <span class="doccomment">/// Create `POST` request.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">post</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">path</span>: <span class="kw">impl</span> <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ClientRequest</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">post</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">path</span>: <span class="kw">impl</span> <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span>) -&gt; <span class="ident">ClientRequest</span> {
         <span class="self">self</span>.<span class="ident">client</span>.<span class="ident">post</span>(<span class="self">self</span>.<span class="ident">url</span>(<span class="ident">path</span>.<span class="ident">as_ref</span>()).<span class="ident">as_str</span>())
     }
 
     <span class="doccomment">/// Create `HEAD` request.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">head</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">path</span>: <span class="kw">impl</span> <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ClientRequest</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">head</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">path</span>: <span class="kw">impl</span> <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span>) -&gt; <span class="ident">ClientRequest</span> {
         <span class="self">self</span>.<span class="ident">client</span>.<span class="ident">head</span>(<span class="self">self</span>.<span class="ident">url</span>(<span class="ident">path</span>.<span class="ident">as_ref</span>()).<span class="ident">as_str</span>())
     }
 
     <span class="doccomment">/// Create `PUT` request.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">put</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">path</span>: <span class="kw">impl</span> <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ClientRequest</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">put</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">path</span>: <span class="kw">impl</span> <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span>) -&gt; <span class="ident">ClientRequest</span> {
         <span class="self">self</span>.<span class="ident">client</span>.<span class="ident">put</span>(<span class="self">self</span>.<span class="ident">url</span>(<span class="ident">path</span>.<span class="ident">as_ref</span>()).<span class="ident">as_str</span>())
     }
 
     <span class="doccomment">/// Create `PATCH` request.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">patch</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">path</span>: <span class="kw">impl</span> <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ClientRequest</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">patch</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">path</span>: <span class="kw">impl</span> <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span>) -&gt; <span class="ident">ClientRequest</span> {
         <span class="self">self</span>.<span class="ident">client</span>.<span class="ident">patch</span>(<span class="self">self</span>.<span class="ident">url</span>(<span class="ident">path</span>.<span class="ident">as_ref</span>()).<span class="ident">as_str</span>())
     }
 
     <span class="doccomment">/// Create `DELETE` request.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">delete</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">path</span>: <span class="kw">impl</span> <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ClientRequest</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">delete</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">path</span>: <span class="kw">impl</span> <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span>) -&gt; <span class="ident">ClientRequest</span> {
         <span class="self">self</span>.<span class="ident">client</span>.<span class="ident">delete</span>(<span class="self">self</span>.<span class="ident">url</span>(<span class="ident">path</span>.<span class="ident">as_ref</span>()).<span class="ident">as_str</span>())
     }
 
     <span class="doccomment">/// Create `OPTIONS` request.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">options</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">path</span>: <span class="kw">impl</span> <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ClientRequest</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">options</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">path</span>: <span class="kw">impl</span> <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span>) -&gt; <span class="ident">ClientRequest</span> {
         <span class="self">self</span>.<span class="ident">client</span>.<span class="ident">options</span>(<span class="self">self</span>.<span class="ident">url</span>(<span class="ident">path</span>.<span class="ident">as_ref</span>()).<span class="ident">as_str</span>())
     }
 
     <span class="doccomment">/// Connect request with given method and path.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">request</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">method</span>: <span class="ident">Method</span>, <span class="ident">path</span>: <span class="kw">impl</span> <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ClientRequest</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">request</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">method</span>: <span class="ident">Method</span>, <span class="ident">path</span>: <span class="kw">impl</span> <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span>) -&gt; <span class="ident">ClientRequest</span> {
         <span class="self">self</span>.<span class="ident">client</span>.<span class="ident">request</span>(<span class="ident">method</span>, <span class="ident">path</span>.<span class="ident">as_ref</span>())
     }
 
     <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">load_body</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>(
-        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
+        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
         <span class="kw-2">mut</span> <span class="ident">response</span>: <span class="ident">ClientResponse</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">web::Bytes</span>, <span class="ident">PayloadError</span><span class="op">&gt;</span>
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">web::Bytes</span>, <span class="ident">PayloadError</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">S</span>: <span class="ident">Stream</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">web::Bytes</span>, <span class="ident">PayloadError</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Unpin</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
     {
@@ -1003,9 +1000,9 @@
 
     <span class="doccomment">/// Connect to WebSocket server at a given path.</span>
     <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">ws_at</span>(
-        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
+        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
         <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Framed</span><span class="op">&lt;</span><span class="kw">impl</span> <span class="ident">AsyncRead</span> <span class="op">+</span> <span class="ident">AsyncWrite</span>, <span class="ident">ws::Codec</span><span class="op">&gt;</span>, <span class="ident">awc::error::WsClientError</span><span class="op">&gt;</span> {
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Framed</span><span class="op">&lt;</span><span class="kw">impl</span> <span class="ident">AsyncRead</span> <span class="op">+</span> <span class="ident">AsyncWrite</span>, <span class="ident">ws::Codec</span><span class="op">&gt;</span>, <span class="ident">awc::error::WsClientError</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">url</span>(<span class="ident">path</span>);
         <span class="kw">let</span> <span class="ident">connect</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">client</span>.<span class="ident">ws</span>(<span class="ident">url</span>).<span class="ident">connect</span>();
         <span class="ident">connect</span>.<span class="kw">await</span>.<span class="ident">map</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="ident">framed</span>)<span class="op">|</span> <span class="ident">framed</span>)
@@ -1013,8 +1010,8 @@
 
     <span class="doccomment">/// Connect to a WebSocket server.</span>
     <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">ws</span>(
-        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Framed</span><span class="op">&lt;</span><span class="kw">impl</span> <span class="ident">AsyncRead</span> <span class="op">+</span> <span class="ident">AsyncWrite</span>, <span class="ident">ws::Codec</span><span class="op">&gt;</span>, <span class="ident">awc::error::WsClientError</span><span class="op">&gt;</span> {
+        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Framed</span><span class="op">&lt;</span><span class="kw">impl</span> <span class="ident">AsyncRead</span> <span class="op">+</span> <span class="ident">AsyncWrite</span>, <span class="ident">ws::Codec</span><span class="op">&gt;</span>, <span class="ident">awc::error::WsClientError</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">ws_at</span>(<span class="string">&quot;/&quot;</span>).<span class="kw">await</span>
     }
 
@@ -1022,7 +1019,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// Returns Some(&amp;mut HeaderMap) when Client object is unique</span>
     <span class="doccomment">/// (No other clone of client exists at the same time).</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">client_headers</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">HeaderMap</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">client_headers</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;mut</span> <span class="ident">HeaderMap</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">client</span>.<span class="ident">headers</span>()
     }
 
@@ -1035,9 +1032,11 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Drop</span> <span class="kw">for</span> <span class="ident">TestServer</span> {
-    <span class="kw">fn</span> <span class="ident">drop</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
+    <span class="kw">fn</span> <span class="ident">drop</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
         <span class="self">self</span>.<span class="ident">system</span>.<span class="ident">stop</span>()
     }
 }
-</pre></div>
-</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="actix_test" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div><script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script></body></html>
+</code></pre></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="actix_test" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
+    <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script>
+</body></html>
