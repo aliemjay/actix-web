@@ -32,8 +32,11 @@ where
 pub trait HandlerX<'a, T>: Clone + 'static {
     type Response: Responder + 'static;
     type Error: Into<Error>;
-    type Future: Future<Output = Result<Self::Response, Self::Error>>;
-    fn call(&'a self, _: &'a HttpRequest, _: &'a mut Payload) -> Self::Future;
+    type Extractor;
+    type ExtractFuture: Future<Output = Result<Self::Extractor, Self::Error>>;
+    type HandlerFuture: Future<Output = Self::Response>;
+    fn extract(_: &'a HttpRequest, _: &'a mut Payload) -> Self::ExtractFuture;
+    fn handle(&'a self, _ :Self::Extractor) -> Self::HandlerFuture;
 }
 
 impl<'a, F, T, Fut, Resp> HandlerX<'a, T> for F
@@ -47,10 +50,16 @@ where
 {
     type Response = Resp;
     type Error = T::Error;
-    type Future = Pin<Box<dyn Future<Output = Result<Resp, T::Error>> + 'a>>;
+    type Extractor = T::Output;
+    type ExtractFuture = T::Future;
+    type HandlerFuture = Fut;
 
-    fn call(&'a self, req: &'a HttpRequest, payload: &'a mut Payload) -> Self::Future {
-        Box::pin(async move { Ok(self.call(T::from_request_x(req, payload).await?).await) })
+    fn extract(req: &'a HttpRequest, payload: &'a mut Payload) -> Self::ExtractFuture {
+        T::from_request_x(req, payload)
+    }
+
+    fn handle(&'a self, data :Self::Extractor) -> Self::HandlerFuture {
+        self.call(data)
     }
 }
 
@@ -238,15 +247,23 @@ mod test {
 
     type Req = HttpRequest;
 
-    fn check<T, F: for<'a> HandlerX<'a, T>>(_: F) {}
+    fn check<T, F, R>(req: ServiceRequest, f: F) -> impl Future<Output = Result<R, Error>> + 'static
+    where F: for<'a> HandlerX<'a, T, Response = R>,
+    {
+        async move {
+            let (req, mut payload)  = req.into_parts();
+            let data = F::extract(&req, &mut payload).await.map_err(|e| e.into())?;
+            Ok(f.handle(data).await)
+        }
+    }
 
     async fn handler(_: &Req, _: (&Req, &Req)) -> &'static str {
         "hello"
     }
 
-    fn test() {
-        check(handler);
+    fn test(req: ServiceRequest) {
+        check(req, handler);
 
-        check(|_: (&Req, &Req), _: &Req| async { "hello" });
+        //check(req, |_: (&Req, &Req), _: &Req| async { "hello" });
     }
 }
