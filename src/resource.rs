@@ -18,10 +18,9 @@ use crate::{
     dev::{ensure_leading_slash, AppService, HttpServiceFactory, ResourceDef},
     guard::Guard,
     handler::Handler,
-    responder::Responder,
     route::{Route, RouteService},
     service::{ServiceRequest, ServiceResponse},
-    Error, FromRequest, HttpResponse,
+    Error, extract::FromRequestX, HttpResponse,
 };
 
 type HttpService = BoxService<ServiceRequest, ServiceResponse, Error>;
@@ -236,12 +235,10 @@ where
     /// # fn index(req: HttpRequest) -> HttpResponse { unimplemented!() }
     /// App::new().service(web::resource("/").route(web::route().to(index)));
     /// ```
-    pub fn to<F, I, R>(mut self, handler: F) -> Self
+    pub fn to<F, I>(mut self, handler: F) -> Self
     where
-        F: Handler<I, R>,
-        I: FromRequest + 'static,
-        R: Future + 'static,
-        R::Output: Responder + 'static,
+        F: for<'a> Handler<'a, I>,
+        I: for<'a> FromRequestX<'a>,
     {
         self.routes.push(Route::new().to(handler));
         self

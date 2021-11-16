@@ -11,9 +11,9 @@ use futures_core::future::LocalBoxFuture;
 
 use crate::{
     guard::{self, Guard},
-    handler::{Handler, HandlerService},
+    handler::{Handler, handler_service},
     service::{ServiceRequest, ServiceResponse},
-    Error, FromRequest, HttpResponse, Responder,
+    Error, extract::FromRequestX, HttpResponse, Responder,
 };
 
 /// Resource route definition
@@ -30,7 +30,7 @@ impl Route {
     #[allow(clippy::new_without_default)]
     pub fn new() -> Route {
         Route {
-            service: boxed::factory(HandlerService::new(HttpResponse::NotFound)),
+            service: handler_service(HttpResponse::NotFound),
             guards: Rc::new(Vec::new()),
         }
     }
@@ -175,14 +175,12 @@ impl Route {
     ///     );
     /// }
     /// ```
-    pub fn to<F, T, R>(mut self, handler: F) -> Self
+    pub fn to<F, T>(mut self, handler: F) -> Self
     where
-        F: Handler<T, R>,
-        T: FromRequest + 'static,
-        R: Future + 'static,
-        R::Output: Responder + 'static,
+        F: for<'a> Handler<'a, T>,
+        T: for<'a> FromRequestX<'a>,
     {
-        self.service = boxed::factory(HandlerService::new(handler));
+        self.service = handler_service(handler);
         self
     }
 
