@@ -517,6 +517,37 @@
 <span id="517">517</span>
 <span id="518">518</span>
 <span id="519">519</span>
+<span id="520">520</span>
+<span id="521">521</span>
+<span id="522">522</span>
+<span id="523">523</span>
+<span id="524">524</span>
+<span id="525">525</span>
+<span id="526">526</span>
+<span id="527">527</span>
+<span id="528">528</span>
+<span id="529">529</span>
+<span id="530">530</span>
+<span id="531">531</span>
+<span id="532">532</span>
+<span id="533">533</span>
+<span id="534">534</span>
+<span id="535">535</span>
+<span id="536">536</span>
+<span id="537">537</span>
+<span id="538">538</span>
+<span id="539">539</span>
+<span id="540">540</span>
+<span id="541">541</span>
+<span id="542">542</span>
+<span id="543">543</span>
+<span id="544">544</span>
+<span id="545">545</span>
+<span id="546">546</span>
+<span id="547">547</span>
+<span id="548">548</span>
+<span id="549">549</span>
+<span id="550">550</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Integration testing tools for Actix Web applications.</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! The main integration testing tool is [`TestServer`]. It spawns a real HTTP server on an</span>
@@ -550,7 +581,7 @@
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls&quot;</span>)]</span>
 <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">tls_rustls</span> <span class="kw">as</span> <span class="ident">rustls</span>;
 
-<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">error::Error</span> <span class="kw">as</span> <span class="ident">StdError</span>, <span class="ident">fmt</span>, <span class="ident">net</span>, <span class="ident">sync::mpsc</span>, <span class="ident">thread</span>, <span class="ident">time</span>};
+<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">error::Error</span> <span class="kw">as</span> <span class="ident">StdError</span>, <span class="ident">fmt</span>, <span class="ident">net</span>, <span class="ident">thread</span>, <span class="ident">time::Duration</span>};
 
 <span class="kw">use</span> <span class="ident">actix_codec</span>::{<span class="ident">AsyncRead</span>, <span class="ident">AsyncWrite</span>, <span class="ident">Framed</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">actix_http::test::TestBuffer</span>;
@@ -560,8 +591,9 @@
 };
 <span class="kw">use</span> <span class="ident">actix_service</span>::{<span class="ident">map_config</span>, <span class="ident">IntoServiceFactory</span>, <span class="ident">ServiceFactory</span>, <span class="ident">ServiceFactoryExt</span> <span class="kw">as</span> <span class="kw">_</span>};
 <span class="kw">use</span> <span class="ident">actix_web</span>::{
-    <span class="ident">dev</span>::{<span class="ident">AppConfig</span>, <span class="ident">MessageBody</span>, <span class="ident">Server</span>, <span class="ident">Service</span>},
-    <span class="ident">rt</span>, <span class="ident">web</span>, <span class="ident">Error</span>,
+    <span class="ident">dev</span>::{<span class="ident">AppConfig</span>, <span class="ident">MessageBody</span>, <span class="ident">Server</span>, <span class="ident">ServerHandle</span>, <span class="ident">Service</span>},
+    <span class="ident">rt</span>::{<span class="self">self</span>, <span class="ident">System</span>},
+    <span class="ident">web</span>, <span class="ident">Error</span>,
 };
 <span class="kw">use</span> <span class="ident">awc</span>::{<span class="ident">error::PayloadError</span>, <span class="ident">Client</span>, <span class="ident">ClientRequest</span>, <span class="ident">ClientResponse</span>, <span class="ident">Connector</span>};
 <span class="kw">use</span> <span class="ident">futures_core::Stream</span>;
@@ -571,6 +603,7 @@
     <span class="ident">call_service</span>, <span class="ident">default_service</span>, <span class="ident">init_service</span>, <span class="ident">load_stream</span>, <span class="ident">ok_service</span>, <span class="ident">read_body</span>,
     <span class="ident">read_body_json</span>, <span class="ident">read_response</span>, <span class="ident">read_response_json</span>, <span class="ident">TestRequest</span>,
 };
+<span class="kw">use</span> <span class="ident">tokio::sync::mpsc</span>;
 
 <span class="doccomment">/// Start default [`TestServer`].</span>
 <span class="doccomment">///</span>
@@ -647,7 +680,11 @@
     <span class="ident">B</span>: <span class="ident">MessageBody</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
     <span class="ident">B::Error</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">StdError</span><span class="op">&gt;</span><span class="op">&gt;</span>,
 {
-    <span class="kw">let</span> (<span class="ident">tx</span>, <span class="ident">rx</span>) <span class="op">=</span> <span class="ident">mpsc::channel</span>();
+    <span class="comment">// for sending handles and server info back from the spawned thread</span>
+    <span class="kw">let</span> (<span class="ident">started_tx</span>, <span class="ident">started_rx</span>) <span class="op">=</span> <span class="ident">std::sync::mpsc::channel</span>();
+
+    <span class="comment">// for signaling the shutdown of spawned server and system</span>
+    <span class="kw">let</span> (<span class="ident">thread_stop_tx</span>, <span class="ident">thread_stop_rx</span>) <span class="op">=</span> <span class="ident">mpsc::channel</span>(<span class="number">1</span>);
 
     <span class="kw">let</span> <span class="ident">tls</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">cfg</span>.<span class="ident">stream</span> {
         <span class="ident">StreamType::Tcp</span> =&gt; <span class="bool-val">false</span>,
@@ -657,7 +694,7 @@
         <span class="ident">StreamType::Rustls</span>(<span class="kw">_</span>) =&gt; <span class="bool-val">true</span>,
     };
 
-    <span class="comment">// run server in separate thread</span>
+    <span class="comment">// run server in separate orphaned thread</span>
     <span class="ident">thread::spawn</span>(<span class="kw">move</span> <span class="op">|</span><span class="op">|</span> {
         <span class="kw">let</span> <span class="ident">sys</span> <span class="op">=</span> <span class="ident">rt::System::new</span>();
         <span class="kw">let</span> <span class="ident">tcp</span> <span class="op">=</span> <span class="ident">net::TcpListener::bind</span>(<span class="string">&quot;127.0.0.1:0&quot;</span>).<span class="ident">unwrap</span>();
@@ -665,7 +702,7 @@
         <span class="kw">let</span> <span class="ident">factory</span> <span class="op">=</span> <span class="ident">factory</span>.<span class="ident">clone</span>();
         <span class="kw">let</span> <span class="ident">srv_cfg</span> <span class="op">=</span> <span class="ident">cfg</span>.<span class="ident">clone</span>();
         <span class="kw">let</span> <span class="ident">timeout</span> <span class="op">=</span> <span class="ident">cfg</span>.<span class="ident">client_timeout</span>;
-        <span class="kw">let</span> <span class="ident">builder</span> <span class="op">=</span> <span class="ident">Server::build</span>().<span class="ident">workers</span>(<span class="number">1</span>).<span class="ident">disable_signals</span>();
+        <span class="kw">let</span> <span class="ident">builder</span> <span class="op">=</span> <span class="ident">Server::build</span>().<span class="ident">workers</span>(<span class="number">1</span>).<span class="ident">disable_signals</span>().<span class="ident">system_exit</span>();
 
         <span class="kw">let</span> <span class="ident">srv</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">srv_cfg</span>.<span class="ident">stream</span> {
             <span class="ident">StreamType::Tcp</span> =&gt; <span class="kw">match</span> <span class="ident">srv_cfg</span>.<span class="ident">tp</span> {
@@ -794,17 +831,25 @@
                 }),
             },
         }
-        .<span class="ident">unwrap</span>();
+        .<span class="ident">expect</span>(<span class="string">&quot;test server could not be created&quot;</span>);
 
-        <span class="ident">sys</span>.<span class="ident">block_on</span>(<span class="kw">async</span> {
-            <span class="kw">let</span> <span class="ident">srv</span> <span class="op">=</span> <span class="ident">srv</span>.<span class="ident">run</span>();
-            <span class="ident">tx</span>.<span class="ident">send</span>((<span class="ident">rt::System::current</span>(), <span class="ident">srv</span>, <span class="ident">local_addr</span>)).<span class="ident">unwrap</span>();
-        });
+        <span class="kw">let</span> <span class="ident">srv</span> <span class="op">=</span> <span class="ident">srv</span>.<span class="ident">run</span>();
+        <span class="ident">started_tx</span>
+            .<span class="ident">send</span>((<span class="ident">System::current</span>(), <span class="ident">srv</span>.<span class="ident">handle</span>(), <span class="ident">local_addr</span>))
+            .<span class="ident">unwrap</span>();
 
-        <span class="ident">sys</span>.<span class="ident">run</span>()
+        <span class="comment">// drive server loop</span>
+        <span class="ident">sys</span>.<span class="ident">block_on</span>(<span class="ident">srv</span>).<span class="ident">unwrap</span>();
+
+        <span class="comment">// start system event loop</span>
+        <span class="ident">sys</span>.<span class="ident">run</span>().<span class="ident">unwrap</span>();
+
+        <span class="comment">// notify TestServer that server and system have shut down</span>
+        <span class="comment">// all thread managed resources should be dropped at this point</span>
+        <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">thread_stop_tx</span>.<span class="ident">send</span>(());
     });
 
-    <span class="kw">let</span> (<span class="ident">system</span>, <span class="ident">server</span>, <span class="ident">addr</span>) <span class="op">=</span> <span class="ident">rx</span>.<span class="ident">recv</span>().<span class="ident">unwrap</span>();
+    <span class="kw">let</span> (<span class="ident">system</span>, <span class="ident">server</span>, <span class="ident">addr</span>) <span class="op">=</span> <span class="ident">started_rx</span>.<span class="ident">recv</span>().<span class="ident">unwrap</span>();
 
     <span class="kw">let</span> <span class="ident">client</span> <span class="op">=</span> {
         <span class="kw">let</span> <span class="ident">connector</span> <span class="op">=</span> {
@@ -818,15 +863,15 @@
                     .<span class="ident">set_alpn_protos</span>(<span class="string">b&quot;\x02h2\x08http/1.1&quot;</span>)
                     .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="macro">log::error!</span>(<span class="string">&quot;Can not set alpn protocol: {:?}&quot;</span>, <span class="ident">e</span>));
                 <span class="ident">Connector::new</span>()
-                    .<span class="ident">conn_lifetime</span>(<span class="ident">time::Duration::from_secs</span>(<span class="number">0</span>))
-                    .<span class="ident">timeout</span>(<span class="ident">time::Duration::from_millis</span>(<span class="number">30000</span>))
+                    .<span class="ident">conn_lifetime</span>(<span class="ident">Duration::from_secs</span>(<span class="number">0</span>))
+                    .<span class="ident">timeout</span>(<span class="ident">Duration::from_millis</span>(<span class="number">30000</span>))
                     .<span class="ident">ssl</span>(<span class="ident">builder</span>.<span class="ident">build</span>())
             }
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;openssl&quot;</span>))]</span>
             {
                 <span class="ident">Connector::new</span>()
-                    .<span class="ident">conn_lifetime</span>(<span class="ident">time::Duration::from_secs</span>(<span class="number">0</span>))
-                    .<span class="ident">timeout</span>(<span class="ident">time::Duration::from_millis</span>(<span class="number">30000</span>))
+                    .<span class="ident">conn_lifetime</span>(<span class="ident">Duration::from_secs</span>(<span class="number">0</span>))
+                    .<span class="ident">timeout</span>(<span class="ident">Duration::from_millis</span>(<span class="number">30000</span>))
             }
         };
 
@@ -834,11 +879,12 @@
     };
 
     <span class="ident">TestServer</span> {
-        <span class="ident">addr</span>,
+        <span class="ident">server</span>,
+        <span class="ident">thread_stop_rx</span>,
         <span class="ident">client</span>,
         <span class="ident">system</span>,
+        <span class="ident">addr</span>,
         <span class="ident">tls</span>,
-        <span class="ident">server</span>,
     }
 }
 
@@ -924,11 +970,12 @@
 <span class="doccomment">///</span>
 <span class="doccomment">/// See [`start`] for usage example.</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">TestServer</span> {
-    <span class="ident">addr</span>: <span class="ident">net::SocketAddr</span>,
+    <span class="ident">server</span>: <span class="ident">ServerHandle</span>,
+    <span class="ident">thread_stop_rx</span>: <span class="ident">mpsc::Receiver</span><span class="op">&lt;</span>()<span class="op">&gt;</span>,
     <span class="ident">client</span>: <span class="ident">awc::Client</span>,
     <span class="ident">system</span>: <span class="ident">rt::System</span>,
+    <span class="ident">addr</span>: <span class="ident">net::SocketAddr</span>,
     <span class="ident">tls</span>: <span class="ident">bool</span>,
-    <span class="ident">server</span>: <span class="ident">Server</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">TestServer</span> {
@@ -1024,16 +1071,31 @@
     }
 
     <span class="doccomment">/// Gracefully stop HTTP server.</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">stop</span>(<span class="self">self</span>) {
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Waits for spawned `Server` and `System` to shutdown gracefully.</span>
+    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">stop</span>(<span class="kw-2">mut</span> <span class="self">self</span>) {
+        <span class="comment">// signal server to stop</span>
         <span class="self">self</span>.<span class="ident">server</span>.<span class="ident">stop</span>(<span class="bool-val">true</span>).<span class="kw">await</span>;
+
+        <span class="comment">// also signal system to stop</span>
+        <span class="comment">// though this is handled by `ServerBuilder::exit_system` too</span>
         <span class="self">self</span>.<span class="ident">system</span>.<span class="ident">stop</span>();
-        <span class="ident">rt::time::sleep</span>(<span class="ident">time::Duration::from_millis</span>(<span class="number">100</span>)).<span class="kw">await</span>;
+
+        <span class="comment">// wait for thread to be stopped but don&#39;t care about result</span>
+        <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">thread_stop_rx</span>.<span class="ident">recv</span>().<span class="kw">await</span>;
     }
 }
 
 <span class="kw">impl</span> <span class="ident">Drop</span> <span class="kw">for</span> <span class="ident">TestServer</span> {
     <span class="kw">fn</span> <span class="ident">drop</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-        <span class="self">self</span>.<span class="ident">system</span>.<span class="ident">stop</span>()
+        <span class="comment">// calls in this Drop impl should be enough to shut down the server, system, and thread</span>
+        <span class="comment">// without needing to await anything</span>
+
+        <span class="comment">// signal server to stop</span>
+        <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">server</span>.<span class="ident">stop</span>(<span class="bool-val">true</span>);
+
+        <span class="comment">// signal system to stop</span>
+        <span class="self">self</span>.<span class="ident">system</span>.<span class="ident">stop</span>();
     }
 }
 </code></pre></div>

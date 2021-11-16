@@ -837,7 +837,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// By default max connections is set to a 25k.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">max_connections</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">num</span>: <span class="ident">usize</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">builder</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">builder</span>.<span class="ident">maxconn</span>(<span class="ident">num</span>);
+        <span class="self">self</span>.<span class="ident">builder</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">builder</span>.<span class="ident">max_concurrent_connections</span>(<span class="ident">num</span>);
         <span class="self">self</span>
     }
 
@@ -911,7 +911,7 @@
         <span class="self">self</span>
     }
 
-    <span class="doccomment">/// Stop actix system.</span>
+    <span class="doccomment">/// Stop Actix `System` after server shutdown.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">system_exit</span>(<span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">builder</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">builder</span>.<span class="ident">system_exit</span>();
         <span class="self">self</span>
