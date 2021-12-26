@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `awc&#x2F;src&#x2F;client&#x2F;connector.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>connector.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="shortcut icon" href="https:&#x2F;&#x2F;actix.rs&#x2F;favicon.ico"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../awc/index.html'><div class='logo-container rust-logo'><img src='https:&#x2F;&#x2F;actix.rs&#x2F;img&#x2F;logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `awc&#x2F;src&#x2F;client&#x2F;connector.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>connector.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><script defer src="../../../main.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script>
+    <noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="shortcut icon" href="https:&#x2F;&#x2F;actix.rs&#x2F;favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a class="sidebar-logo" href="../../../awc/index.html"><div class="logo-container"><img src="https:&#x2F;&#x2F;actix.rs&#x2F;img&#x2F;logo.png" alt="logo"></div>
+        </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../awc/index.html"><img src="https:&#x2F;&#x2F;actix.rs&#x2F;img&#x2F;logo.png" alt="logo"></a><nav class="sub"><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -760,6 +762,145 @@
 <span id="760">760</span>
 <span id="761">761</span>
 <span id="762">762</span>
+<span id="763">763</span>
+<span id="764">764</span>
+<span id="765">765</span>
+<span id="766">766</span>
+<span id="767">767</span>
+<span id="768">768</span>
+<span id="769">769</span>
+<span id="770">770</span>
+<span id="771">771</span>
+<span id="772">772</span>
+<span id="773">773</span>
+<span id="774">774</span>
+<span id="775">775</span>
+<span id="776">776</span>
+<span id="777">777</span>
+<span id="778">778</span>
+<span id="779">779</span>
+<span id="780">780</span>
+<span id="781">781</span>
+<span id="782">782</span>
+<span id="783">783</span>
+<span id="784">784</span>
+<span id="785">785</span>
+<span id="786">786</span>
+<span id="787">787</span>
+<span id="788">788</span>
+<span id="789">789</span>
+<span id="790">790</span>
+<span id="791">791</span>
+<span id="792">792</span>
+<span id="793">793</span>
+<span id="794">794</span>
+<span id="795">795</span>
+<span id="796">796</span>
+<span id="797">797</span>
+<span id="798">798</span>
+<span id="799">799</span>
+<span id="800">800</span>
+<span id="801">801</span>
+<span id="802">802</span>
+<span id="803">803</span>
+<span id="804">804</span>
+<span id="805">805</span>
+<span id="806">806</span>
+<span id="807">807</span>
+<span id="808">808</span>
+<span id="809">809</span>
+<span id="810">810</span>
+<span id="811">811</span>
+<span id="812">812</span>
+<span id="813">813</span>
+<span id="814">814</span>
+<span id="815">815</span>
+<span id="816">816</span>
+<span id="817">817</span>
+<span id="818">818</span>
+<span id="819">819</span>
+<span id="820">820</span>
+<span id="821">821</span>
+<span id="822">822</span>
+<span id="823">823</span>
+<span id="824">824</span>
+<span id="825">825</span>
+<span id="826">826</span>
+<span id="827">827</span>
+<span id="828">828</span>
+<span id="829">829</span>
+<span id="830">830</span>
+<span id="831">831</span>
+<span id="832">832</span>
+<span id="833">833</span>
+<span id="834">834</span>
+<span id="835">835</span>
+<span id="836">836</span>
+<span id="837">837</span>
+<span id="838">838</span>
+<span id="839">839</span>
+<span id="840">840</span>
+<span id="841">841</span>
+<span id="842">842</span>
+<span id="843">843</span>
+<span id="844">844</span>
+<span id="845">845</span>
+<span id="846">846</span>
+<span id="847">847</span>
+<span id="848">848</span>
+<span id="849">849</span>
+<span id="850">850</span>
+<span id="851">851</span>
+<span id="852">852</span>
+<span id="853">853</span>
+<span id="854">854</span>
+<span id="855">855</span>
+<span id="856">856</span>
+<span id="857">857</span>
+<span id="858">858</span>
+<span id="859">859</span>
+<span id="860">860</span>
+<span id="861">861</span>
+<span id="862">862</span>
+<span id="863">863</span>
+<span id="864">864</span>
+<span id="865">865</span>
+<span id="866">866</span>
+<span id="867">867</span>
+<span id="868">868</span>
+<span id="869">869</span>
+<span id="870">870</span>
+<span id="871">871</span>
+<span id="872">872</span>
+<span id="873">873</span>
+<span id="874">874</span>
+<span id="875">875</span>
+<span id="876">876</span>
+<span id="877">877</span>
+<span id="878">878</span>
+<span id="879">879</span>
+<span id="880">880</span>
+<span id="881">881</span>
+<span id="882">882</span>
+<span id="883">883</span>
+<span id="884">884</span>
+<span id="885">885</span>
+<span id="886">886</span>
+<span id="887">887</span>
+<span id="888">888</span>
+<span id="889">889</span>
+<span id="890">890</span>
+<span id="891">891</span>
+<span id="892">892</span>
+<span id="893">893</span>
+<span id="894">894</span>
+<span id="895">895</span>
+<span id="896">896</span>
+<span id="897">897</span>
+<span id="898">898</span>
+<span id="899">899</span>
+<span id="900">900</span>
+<span id="901">901</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std</span>::{
     <span class="ident">fmt</span>,
     <span class="ident">future::Future</span>,
@@ -777,26 +918,36 @@
 };
 <span class="kw">use</span> <span class="ident">actix_service::Service</span>;
 <span class="kw">use</span> <span class="ident">actix_tls::connect</span>::{
-    <span class="ident">new_connector</span>, <span class="ident">Connect</span> <span class="kw">as</span> <span class="ident">TcpConnect</span>, <span class="ident">ConnectError</span> <span class="kw">as</span> <span class="ident">TcpConnectError</span>,
-    <span class="ident">Connection</span> <span class="kw">as</span> <span class="ident">TcpConnection</span>, <span class="ident">Resolver</span>,
+    <span class="ident">ConnectError</span> <span class="kw">as</span> <span class="ident">TcpConnectError</span>, <span class="ident">ConnectInfo</span>, <span class="ident">Connection</span> <span class="kw">as</span> <span class="ident">TcpConnection</span>,
+    <span class="ident">Connector</span> <span class="kw">as</span> <span class="ident">TcpConnector</span>, <span class="ident">Resolver</span>,
 };
 <span class="kw">use</span> <span class="ident">futures_core</span>::{<span class="ident">future::LocalBoxFuture</span>, <span class="ident">ready</span>};
 <span class="kw">use</span> <span class="ident">http::Uri</span>;
 <span class="kw">use</span> <span class="ident">pin_project_lite::pin_project</span>;
 
-<span class="kw">use</span> <span class="ident"><span class="kw">super</span>::config::ConnectorConfig</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">super</span>::connection</span>::{<span class="ident">Connection</span>, <span class="ident">ConnectionIo</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">super</span>::error::ConnectError</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">super</span>::pool::ConnectionPool</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">super</span>::Connect</span>;
+<span class="kw">use</span> <span class="kw">super</span>::{
+    <span class="ident">config::ConnectorConfig</span>,
+    <span class="ident">connection</span>::{<span class="ident">Connection</span>, <span class="ident">ConnectionIo</span>},
+    <span class="ident">error::ConnectError</span>,
+    <span class="ident">pool::ConnectionPool</span>,
+    <span class="ident">Connect</span>,
+};
 
-<span class="kw">enum</span> <span class="ident">SslConnector</span> {
-    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span>
+<span class="kw">enum</span> <span class="ident">OurTlsConnector</span> {
+    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span> <span class="comment">// only dead when no TLS feature is enabled</span>
     <span class="prelude-val">None</span>,
+
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;openssl&quot;</span>)]</span>
-    <span class="ident">Openssl</span>(<span class="ident">actix_tls::connect::ssl::openssl::SslConnector</span>),
+    <span class="ident">Openssl</span>(<span class="ident">actix_tls::connect::openssl::reexports::SslConnector</span>),
+
+    <span class="doccomment">/// Provided because building the OpenSSL context on newer versions can be very slow.</span>
+    <span class="doccomment">/// This prevents unnecessary calls to `.build()` while constructing the client connector.</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;openssl&quot;</span>)]</span>
+    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span> <span class="comment">// false positive; used in build_ssl</span>
+    <span class="ident">OpensslBuilder</span>(<span class="ident">actix_tls::connect::openssl::reexports::SslConnectorBuilder</span>),
+
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls&quot;</span>)]</span>
-    <span class="ident">Rustls</span>(<span class="ident">std::sync::Arc</span><span class="op">&lt;</span><span class="ident">actix_tls::connect::ssl::rustls::ClientConfig</span><span class="op">&gt;</span>),
+    <span class="ident">Rustls</span>(<span class="ident">std::sync::Arc</span><span class="op">&lt;</span><span class="ident">actix_tls::connect::rustls::reexports::ClientConfig</span><span class="op">&gt;</span>),
 }
 
 <span class="doccomment">/// Manages HTTP client network connectivity.</span>
@@ -815,38 +966,39 @@
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Connector</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
     <span class="ident">connector</span>: <span class="ident">T</span>,
     <span class="ident">config</span>: <span class="ident">ConnectorConfig</span>,
-    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span>
-    <span class="ident">ssl</span>: <span class="ident">SslConnector</span>,
+
+    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span> <span class="comment">// only dead when no TLS feature is enabled</span>
+    <span class="ident">tls</span>: <span class="ident">OurTlsConnector</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">Connector</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
     <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::new_ret_no_self</span>, <span class="ident">clippy::let_unit_value</span>)]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="ident">Connector</span><span class="op">&lt;</span>
         <span class="kw">impl</span> <span class="ident">Service</span><span class="op">&lt;</span>
-                <span class="ident">TcpConnect</span><span class="op">&lt;</span><span class="ident">Uri</span><span class="op">&gt;</span>,
+                <span class="ident">ConnectInfo</span><span class="op">&lt;</span><span class="ident">Uri</span><span class="op">&gt;</span>,
                 <span class="ident">Response</span> <span class="op">=</span> <span class="ident">TcpConnection</span><span class="op">&lt;</span><span class="ident">Uri</span>, <span class="ident">TcpStream</span><span class="op">&gt;</span>,
                 <span class="ident">Error</span> <span class="op">=</span> <span class="ident">actix_tls::connect::ConnectError</span>,
             <span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Clone</span>,
     <span class="op">&gt;</span> {
         <span class="ident">Connector</span> {
-            <span class="ident">ssl</span>: <span class="ident"><span class="self">Self</span>::build_ssl</span>(<span class="macro">vec!</span>[<span class="string">b&quot;h2&quot;</span>.<span class="ident">to_vec</span>(), <span class="string">b&quot;http/1.1&quot;</span>.<span class="ident">to_vec</span>()]),
-            <span class="ident">connector</span>: <span class="ident">new_connector</span>(<span class="ident">resolver::resolver</span>()),
+            <span class="ident">connector</span>: <span class="ident">TcpConnector::new</span>(<span class="ident">resolver::resolver</span>()).<span class="ident">service</span>(),
             <span class="ident">config</span>: <span class="ident">ConnectorConfig::default</span>(),
+            <span class="ident">tls</span>: <span class="ident"><span class="self">Self</span>::build_ssl</span>(<span class="macro">vec!</span>[<span class="string">b&quot;h2&quot;</span>.<span class="ident">to_vec</span>(), <span class="string">b&quot;http/1.1&quot;</span>.<span class="ident">to_vec</span>()]),
         }
     }
 
     <span class="doccomment">/// Provides an empty TLS connector when no TLS feature is enabled.</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;openssl&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls&quot;</span>)))]</span>
-    <span class="kw">fn</span> <span class="ident">build_ssl</span>(<span class="kw">_</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span>) -&gt; <span class="ident">SslConnector</span> {
-        <span class="ident">SslConnector::None</span>
+    <span class="kw">fn</span> <span class="ident">build_ssl</span>(<span class="kw">_</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span>) -&gt; <span class="ident">OurTlsConnector</span> {
+        <span class="ident">OurTlsConnector::None</span>
     }
 
     <span class="doccomment">/// Build TLS connector with rustls, based on supplied ALPN protocols</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Note that if both `openssl` and `rustls` features are enabled, rustls will be used.</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls&quot;</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">build_ssl</span>(<span class="ident">protocols</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span>) -&gt; <span class="ident">SslConnector</span> {
-        <span class="kw">use</span> <span class="ident">actix_tls::connect::tls::rustls</span>::{<span class="ident">webpki_roots_cert_store</span>, <span class="ident">ClientConfig</span>};
+    <span class="kw">fn</span> <span class="ident">build_ssl</span>(<span class="ident">protocols</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span>) -&gt; <span class="ident">OurTlsConnector</span> {
+        <span class="kw">use</span> <span class="ident">actix_tls::connect::rustls</span>::{<span class="ident">reexports::ClientConfig</span>, <span class="ident">webpki_roots_cert_store</span>};
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">config</span> <span class="op">=</span> <span class="ident">ClientConfig::builder</span>()
             .<span class="ident">with_safe_defaults</span>()
@@ -855,13 +1007,13 @@
 
         <span class="ident">config</span>.<span class="ident">alpn_protocols</span> <span class="op">=</span> <span class="ident">protocols</span>;
 
-        <span class="ident">SslConnector::Rustls</span>(<span class="ident">std::sync::Arc::new</span>(<span class="ident">config</span>))
+        <span class="ident">OurTlsConnector::Rustls</span>(<span class="ident">std::sync::Arc::new</span>(<span class="ident">config</span>))
     }
 
     <span class="doccomment">/// Build TLS connector with openssl, based on supplied ALPN protocols</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;openssl&quot;</span>, <span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls&quot;</span>)))]</span>
-    <span class="kw">fn</span> <span class="ident">build_ssl</span>(<span class="ident">protocols</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span>) -&gt; <span class="ident">SslConnector</span> {
-        <span class="kw">use</span> <span class="ident">actix_tls::connect::tls::openssl</span>::{<span class="ident">SslConnector</span> <span class="kw">as</span> <span class="ident">OpensslConnector</span>, <span class="ident">SslMethod</span>};
+    <span class="kw">fn</span> <span class="ident">build_ssl</span>(<span class="ident">protocols</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span>) -&gt; <span class="ident">OurTlsConnector</span> {
+        <span class="kw">use</span> <span class="ident">actix_tls::connect::openssl::reexports</span>::{<span class="ident">SslConnector</span>, <span class="ident">SslMethod</span>};
         <span class="kw">use</span> <span class="ident">bytes</span>::{<span class="ident">BufMut</span>, <span class="ident">BytesMut</span>};
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">alpn</span> <span class="op">=</span> <span class="ident">BytesMut::with_capacity</span>(<span class="number">20</span>);
@@ -870,12 +1022,12 @@
             <span class="ident">alpn</span>.<span class="ident">put</span>(<span class="ident">proto</span>.<span class="ident">as_slice</span>());
         }
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ssl</span> <span class="op">=</span> <span class="ident">OpensslConnector::builder</span>(<span class="ident">SslMethod::tls</span>()).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ssl</span> <span class="op">=</span> <span class="ident">SslConnector::builder</span>(<span class="ident">SslMethod::tls</span>()).<span class="ident">unwrap</span>();
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span> <span class="ident">ssl</span>.<span class="ident">set_alpn_protos</span>(<span class="kw-2">&amp;</span><span class="ident">alpn</span>) {
             <span class="macro">log::error!</span>(<span class="string">&quot;Can not set ALPN protocol: {:?}&quot;</span>, <span class="ident">err</span>);
         }
 
-        <span class="ident">SslConnector::Openssl</span>(<span class="ident">ssl</span>.<span class="ident">build</span>())
+        <span class="ident">OurTlsConnector::OpensslBuilder</span>(<span class="ident">ssl</span>)
     }
 }
 
@@ -885,7 +1037,7 @@
     <span class="kw">where</span>
         <span class="ident">Io1</span>: <span class="ident">ActixStream</span> <span class="op">+</span> <span class="ident">fmt::Debug</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
         <span class="ident">S1</span>: <span class="ident">Service</span><span class="op">&lt;</span>
-                <span class="ident">TcpConnect</span><span class="op">&lt;</span><span class="ident">Uri</span><span class="op">&gt;</span>,
+                <span class="ident">ConnectInfo</span><span class="op">&lt;</span><span class="ident">Uri</span><span class="op">&gt;</span>,
                 <span class="ident">Response</span> <span class="op">=</span> <span class="ident">TcpConnection</span><span class="op">&lt;</span><span class="ident">Uri</span>, <span class="ident">Io1</span><span class="op">&gt;</span>,
                 <span class="ident">Error</span> <span class="op">=</span> <span class="ident">TcpConnectError</span>,
             <span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Clone</span>,
@@ -893,12 +1045,12 @@
         <span class="ident">Connector</span> {
             <span class="ident">connector</span>,
             <span class="ident">config</span>: <span class="self">self</span>.<span class="ident">config</span>,
-            <span class="ident">ssl</span>: <span class="self">self</span>.<span class="ident">ssl</span>,
+            <span class="ident">tls</span>: <span class="self">self</span>.<span class="ident">tls</span>,
         }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">Io</span><span class="op">&gt;</span> <span class="ident">Connector</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">IO</span><span class="op">&gt;</span> <span class="ident">Connector</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>
 <span class="kw">where</span>
     <span class="comment">// Note:</span>
     <span class="comment">// Input Io type is bound to ActixStream trait but internally in client module they</span>
@@ -907,8 +1059,8 @@
     <span class="comment">//</span>
     <span class="comment">// This remap is to hide ActixStream&#39;s trait methods. They are not meant to be called</span>
     <span class="comment">// from user code.</span>
-    <span class="ident">Io</span>: <span class="ident">ActixStream</span> <span class="op">+</span> <span class="ident">fmt::Debug</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
-    <span class="ident">S</span>: <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">TcpConnect</span><span class="op">&lt;</span><span class="ident">Uri</span><span class="op">&gt;</span>, <span class="ident">Response</span> <span class="op">=</span> <span class="ident">TcpConnection</span><span class="op">&lt;</span><span class="ident">Uri</span>, <span class="ident">Io</span><span class="op">&gt;</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="ident">TcpConnectError</span><span class="op">&gt;</span>
+    <span class="ident">IO</span>: <span class="ident">ActixStream</span> <span class="op">+</span> <span class="ident">fmt::Debug</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+    <span class="ident">S</span>: <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">ConnectInfo</span><span class="op">&lt;</span><span class="ident">Uri</span><span class="op">&gt;</span>, <span class="ident">Response</span> <span class="op">=</span> <span class="ident">TcpConnection</span><span class="op">&lt;</span><span class="ident">Uri</span>, <span class="ident">IO</span><span class="op">&gt;</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="ident">TcpConnectError</span><span class="op">&gt;</span>
         <span class="op">+</span> <span class="ident">Clone</span>
         <span class="op">+</span> <span class="lifetime">&#39;static</span>,
 {
@@ -926,20 +1078,35 @@
         <span class="self">self</span>
     }
 
+    <span class="doccomment">/// Use custom OpenSSL `SslConnector` instance.</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;openssl&quot;</span>)]</span>
-    <span class="doccomment">/// Use custom `SslConnector` instance.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ssl</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">connector</span>: <span class="ident">actix_tls::connect::ssl::openssl::SslConnector</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">ssl</span> <span class="op">=</span> <span class="ident">SslConnector::Openssl</span>(<span class="ident">connector</span>);
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">openssl</span>(
+        <span class="kw-2">mut</span> <span class="self">self</span>,
+        <span class="ident">connector</span>: <span class="ident">actix_tls::connect::openssl::reexports::SslConnector</span>,
+    ) -&gt; <span class="self">Self</span> {
+        <span class="self">self</span>.<span class="ident">tls</span> <span class="op">=</span> <span class="ident">OurTlsConnector::Openssl</span>(<span class="ident">connector</span>);
         <span class="self">self</span>
     }
 
+    <span class="doccomment">/// See docs for [`Connector::openssl`].</span>
+    <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;openssl&quot;</span>)]</span>
+    <span class="attribute">#[<span class="ident">deprecated</span>(<span class="ident">since</span> <span class="op">=</span> <span class="string">&quot;3.0.0&quot;</span>, <span class="ident">note</span> <span class="op">=</span> <span class="string">&quot;Renamed to `Connector::openssl`.&quot;</span>)]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ssl</span>(
+        <span class="kw-2">mut</span> <span class="self">self</span>,
+        <span class="ident">connector</span>: <span class="ident">actix_tls::connect::openssl::reexports::SslConnector</span>,
+    ) -&gt; <span class="self">Self</span> {
+        <span class="self">self</span>.<span class="ident">tls</span> <span class="op">=</span> <span class="ident">OurTlsConnector::Openssl</span>(<span class="ident">connector</span>);
+        <span class="self">self</span>
+    }
+
+    <span class="doccomment">/// Use custom Rustls `ClientConfig` instance.</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls&quot;</span>)]</span>
-    <span class="doccomment">/// Use custom `SslConnector` instance.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">rustls</span>(
         <span class="kw-2">mut</span> <span class="self">self</span>,
-        <span class="ident">connector</span>: <span class="ident">std::sync::Arc</span><span class="op">&lt;</span><span class="ident">actix_tls::connect::ssl::rustls::ClientConfig</span><span class="op">&gt;</span>,
+        <span class="ident">connector</span>: <span class="ident">std::sync::Arc</span><span class="op">&lt;</span><span class="ident">actix_tls::connect::rustls::reexports::ClientConfig</span><span class="op">&gt;</span>,
     ) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">ssl</span> <span class="op">=</span> <span class="ident">SslConnector::Rustls</span>(<span class="ident">connector</span>);
+        <span class="self">self</span>.<span class="ident">tls</span> <span class="op">=</span> <span class="ident">OurTlsConnector::Rustls</span>(<span class="ident">connector</span>);
         <span class="self">self</span>
     }
 
@@ -951,10 +1118,10 @@
             <span class="ident">http::Version::HTTP_11</span> =&gt; <span class="macro">vec!</span>[<span class="string">b&quot;http/1.1&quot;</span>.<span class="ident">to_vec</span>()],
             <span class="ident">http::Version::HTTP_2</span> =&gt; <span class="macro">vec!</span>[<span class="string">b&quot;h2&quot;</span>.<span class="ident">to_vec</span>(), <span class="string">b&quot;http/1.1&quot;</span>.<span class="ident">to_vec</span>()],
             <span class="kw">_</span> =&gt; {
-                <span class="macro">unimplemented!</span>(<span class="string">&quot;actix-http:client: supported versions http/1.1, http/2&quot;</span>)
+                <span class="macro">unimplemented!</span>(<span class="string">&quot;actix-http client only supports versions http/1.1 &amp; http/2&quot;</span>)
             }
         };
-        <span class="self">self</span>.<span class="ident">ssl</span> <span class="op">=</span> <span class="ident">Connector::build_ssl</span>(<span class="ident">versions</span>);
+        <span class="self">self</span>.<span class="ident">tls</span> <span class="op">=</span> <span class="ident">Connector::build_ssl</span>(<span class="ident">versions</span>);
         <span class="self">self</span>
     }
 
@@ -1026,9 +1193,9 @@
     }
 
     <span class="doccomment">/// Finish configuration process and create connector service.</span>
-    <span class="doccomment">/// The Connector builder always concludes by calling `finish()` last in</span>
-    <span class="doccomment">/// its combinator chain.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">finish</span>(<span class="self">self</span>) -&gt; <span class="ident">ConnectorService</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">Io</span><span class="op">&gt;</span> {
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// The `Connector` builder always concludes by calling `finish()` last in its combinator chain.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">finish</span>(<span class="self">self</span>) -&gt; <span class="ident">ConnectorService</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">IO</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">local_address</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">config</span>.<span class="ident">local_address</span>;
         <span class="kw">let</span> <span class="ident">timeout</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">config</span>.<span class="ident">timeout</span>;
 
@@ -1040,15 +1207,79 @@
             <span class="ident">service</span>: <span class="ident">tcp_service_inner</span>.<span class="ident">clone</span>(),
         };
 
-        <span class="kw">let</span> <span class="ident">tls_service</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">ssl</span> {
-            <span class="ident">SslConnector::None</span> =&gt; <span class="prelude-val">None</span>,
+        <span class="kw">let</span> <span class="ident">tls</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">tls</span> {
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;openssl&quot;</span>)]</span>
-            <span class="ident">SslConnector::Openssl</span>(<span class="ident">tls</span>) =&gt; {
+            <span class="ident">OurTlsConnector::OpensslBuilder</span>(<span class="ident">builder</span>) =&gt; {
+                <span class="ident">OurTlsConnector::Openssl</span>(<span class="ident">builder</span>.<span class="ident">build</span>())
+            }
+            <span class="ident">tls</span> =&gt; <span class="ident">tls</span>,
+        };
+
+        <span class="kw">let</span> <span class="ident">tls_service</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">tls</span> {
+            <span class="ident">OurTlsConnector::None</span> =&gt; {
+                <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;dangerous-h2c&quot;</span>))]</span>
+                {
+                    <span class="prelude-val">None</span>
+                }
+
+                <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;dangerous-h2c&quot;</span>)]</span>
+                {
+                    <span class="kw">use</span> <span class="ident">std::io</span>;
+
+                    <span class="kw">use</span> <span class="ident">actix_tls::connect::Connection</span>;
+                    <span class="kw">use</span> <span class="ident">actix_utils::future</span>::{<span class="ident">ready</span>, <span class="ident">Ready</span>};
+
+                    <span class="kw">impl</span> <span class="ident">IntoConnectionIo</span> <span class="kw">for</span> <span class="ident">TcpConnection</span><span class="op">&lt;</span><span class="ident">Uri</span>, <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">ConnectionIo</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+                        <span class="kw">fn</span> <span class="ident">into_connection_io</span>(<span class="self">self</span>) -&gt; (<span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">ConnectionIo</span><span class="op">&gt;</span>, <span class="ident">Protocol</span>) {
+                            <span class="kw">let</span> <span class="ident">io</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">into_parts</span>().<span class="number">0</span>;
+                            (<span class="ident">io</span>, <span class="ident">Protocol::Http2</span>)
+                        }
+                    }
+
+                    <span class="doccomment">/// With the `dangerous-h2c` feature enabled, this connector uses a no-op TLS</span>
+                    <span class="doccomment">/// connection service that passes through plain TCP as a TLS connection.</span>
+                    <span class="doccomment">///</span>
+                    <span class="doccomment">/// The protocol version of this fake TLS connection is set to be HTTP/2.</span>
+                    <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
+                    <span class="kw">struct</span> <span class="ident">NoOpTlsConnectorService</span>;
+
+                    <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">IO</span><span class="op">&gt;</span> <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Connection</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">IO</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">NoOpTlsConnectorService</span>
+                    <span class="kw">where</span>
+                        <span class="ident">IO</span>: <span class="ident">ActixStream</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+                    {
+                        <span class="kw">type</span> <span class="ident">Response</span> <span class="op">=</span> <span class="ident">Connection</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">ConnectionIo</span><span class="op">&gt;</span><span class="op">&gt;</span>;
+                        <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">io::Error</span>;
+                        <span class="kw">type</span> <span class="ident">Future</span> <span class="op">=</span> <span class="ident">Ready</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Response</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span><span class="op">&gt;</span>;
+
+                        <span class="macro">actix_service::always_ready!</span>();
+
+                        <span class="kw">fn</span> <span class="ident">call</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">connection</span>: <span class="ident">Connection</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">IO</span><span class="op">&gt;</span>) -&gt; <span class="ident"><span class="self">Self</span>::Future</span> {
+                            <span class="kw">let</span> (<span class="ident">io</span>, <span class="ident">connection</span>) <span class="op">=</span> <span class="ident">connection</span>.<span class="ident">replace_io</span>(());
+                            <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">connection</span>) <span class="op">=</span> <span class="ident">connection</span>.<span class="ident">replace_io</span>(<span class="ident">Box::new</span>(<span class="ident">io</span>) <span class="kw">as</span> <span class="kw">_</span>);
+
+                            <span class="ident">ready</span>(<span class="prelude-val">Ok</span>(<span class="ident">connection</span>))
+                        }
+                    }
+
+                    <span class="kw">let</span> <span class="ident">handshake_timeout</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">config</span>.<span class="ident">handshake_timeout</span>;
+
+                    <span class="kw">let</span> <span class="ident">tls_service</span> <span class="op">=</span> <span class="ident">TlsConnectorService</span> {
+                        <span class="ident">tcp_service</span>: <span class="ident">tcp_service_inner</span>,
+                        <span class="ident">tls_service</span>: <span class="ident">NoOpTlsConnectorService</span>,
+                        <span class="ident">timeout</span>: <span class="ident">handshake_timeout</span>,
+                    };
+
+                    <span class="prelude-val">Some</span>(<span class="ident">actix_service::boxed::rc_service</span>(<span class="ident">tls_service</span>))
+                }
+            }
+
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;openssl&quot;</span>)]</span>
+            <span class="ident">OurTlsConnector::Openssl</span>(<span class="ident">tls</span>) =&gt; {
                 <span class="kw">const</span> <span class="ident">H2</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>] <span class="op">=</span> <span class="string">b&quot;h2&quot;</span>;
 
-                <span class="kw">use</span> <span class="ident">actix_tls::connect::ssl::openssl</span>::{<span class="ident">OpensslConnector</span>, <span class="ident">SslStream</span>};
+                <span class="kw">use</span> <span class="ident">actix_tls::connect::openssl</span>::{<span class="ident">reexports::AsyncSslStream</span>, <span class="ident">TlsConnector</span>};
 
-                <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">Io</span>: <span class="ident">ConnectionIo</span><span class="op">&gt;</span> <span class="ident">IntoConnectionIo</span> <span class="kw">for</span> <span class="ident">TcpConnection</span><span class="op">&lt;</span><span class="ident">Uri</span>, <span class="ident">SslStream</span><span class="op">&lt;</span><span class="ident">Io</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+                <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">IO</span>: <span class="ident">ConnectionIo</span><span class="op">&gt;</span> <span class="ident">IntoConnectionIo</span> <span class="kw">for</span> <span class="ident">TcpConnection</span><span class="op">&lt;</span><span class="ident">Uri</span>, <span class="ident">AsyncSslStream</span><span class="op">&lt;</span><span class="ident">IO</span><span class="op">&gt;</span><span class="op">&gt;</span> {
                     <span class="kw">fn</span> <span class="ident">into_connection_io</span>(<span class="self">self</span>) -&gt; (<span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">ConnectionIo</span><span class="op">&gt;</span>, <span class="ident">Protocol</span>) {
                         <span class="kw">let</span> <span class="ident">sock</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">into_parts</span>().<span class="number">0</span>;
                         <span class="kw">let</span> <span class="ident">h2</span> <span class="op">=</span> <span class="ident">sock</span>
@@ -1067,19 +1298,25 @@
 
                 <span class="kw">let</span> <span class="ident">tls_service</span> <span class="op">=</span> <span class="ident">TlsConnectorService</span> {
                     <span class="ident">tcp_service</span>: <span class="ident">tcp_service_inner</span>,
-                    <span class="ident">tls_service</span>: <span class="ident">OpensslConnector::service</span>(<span class="ident">tls</span>),
+                    <span class="ident">tls_service</span>: <span class="ident">TlsConnector::service</span>(<span class="ident">tls</span>),
                     <span class="ident">timeout</span>: <span class="ident">handshake_timeout</span>,
                 };
 
                 <span class="prelude-val">Some</span>(<span class="ident">actix_service::boxed::rc_service</span>(<span class="ident">tls_service</span>))
             }
+
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;openssl&quot;</span>)]</span>
+            <span class="ident">OurTlsConnector::OpensslBuilder</span>(<span class="kw">_</span>) =&gt; {
+                <span class="macro">unreachable!</span>(<span class="string">&quot;OpenSSL builder is built before this match.&quot;</span>);
+            }
+
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls&quot;</span>)]</span>
-            <span class="ident">SslConnector::Rustls</span>(<span class="ident">tls</span>) =&gt; {
+            <span class="ident">OurTlsConnector::Rustls</span>(<span class="ident">tls</span>) =&gt; {
                 <span class="kw">const</span> <span class="ident">H2</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>] <span class="op">=</span> <span class="string">b&quot;h2&quot;</span>;
 
-                <span class="kw">use</span> <span class="ident">actix_tls::connect::ssl::rustls</span>::{<span class="ident">RustlsConnector</span>, <span class="ident">TlsStream</span>};
+                <span class="kw">use</span> <span class="ident">actix_tls::connect::rustls</span>::{<span class="ident">reexports::AsyncTlsStream</span>, <span class="ident">TlsConnector</span>};
 
-                <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">Io</span>: <span class="ident">ConnectionIo</span><span class="op">&gt;</span> <span class="ident">IntoConnectionIo</span> <span class="kw">for</span> <span class="ident">TcpConnection</span><span class="op">&lt;</span><span class="ident">Uri</span>, <span class="ident">TlsStream</span><span class="op">&lt;</span><span class="ident">Io</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+                <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">Io</span>: <span class="ident">ConnectionIo</span><span class="op">&gt;</span> <span class="ident">IntoConnectionIo</span> <span class="kw">for</span> <span class="ident">TcpConnection</span><span class="op">&lt;</span><span class="ident">Uri</span>, <span class="ident">AsyncTlsStream</span><span class="op">&lt;</span><span class="ident">Io</span><span class="op">&gt;</span><span class="op">&gt;</span> {
                     <span class="kw">fn</span> <span class="ident">into_connection_io</span>(<span class="self">self</span>) -&gt; (<span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">ConnectionIo</span><span class="op">&gt;</span>, <span class="ident">Protocol</span>) {
                         <span class="kw">let</span> <span class="ident">sock</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">into_parts</span>().<span class="number">0</span>;
                         <span class="kw">let</span> <span class="ident">h2</span> <span class="op">=</span> <span class="ident">sock</span>
@@ -1099,7 +1336,7 @@
 
                 <span class="kw">let</span> <span class="ident">tls_service</span> <span class="op">=</span> <span class="ident">TlsConnectorService</span> {
                     <span class="ident">tcp_service</span>: <span class="ident">tcp_service_inner</span>,
-                    <span class="ident">tls_service</span>: <span class="ident">RustlsConnector::service</span>(<span class="ident">tls</span>),
+                    <span class="ident">tls_service</span>: <span class="ident">TlsConnector::service</span>(<span class="ident">tls</span>),
                     <span class="ident">timeout</span>: <span class="ident">handshake_timeout</span>,
                 };
 
@@ -1168,26 +1405,28 @@
 
 <span class="doccomment">/// service for establish tcp connection and do client tls handshake.</span>
 <span class="doccomment">/// operation is canceled when timeout limit reached.</span>
-<span class="kw">struct</span> <span class="ident">TlsConnectorService</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">St</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// tcp connection is canceled on `TcpConnectorInnerService`&#39;s timeout setting.</span>
-    <span class="ident">tcp_service</span>: <span class="ident">S</span>,
-    <span class="doccomment">/// tls connection is canceled on `TlsConnectorService`&#39;s timeout setting.</span>
-    <span class="ident">tls_service</span>: <span class="ident">St</span>,
+<span class="kw">struct</span> <span class="ident">TlsConnectorService</span><span class="op">&lt;</span><span class="ident">Tcp</span>, <span class="ident">Tls</span><span class="op">&gt;</span> {
+    <span class="doccomment">/// TCP connection is canceled on `TcpConnectorInnerService`&#39;s timeout setting.</span>
+    <span class="ident">tcp_service</span>: <span class="ident">Tcp</span>,
+
+    <span class="doccomment">/// TLS connection is canceled on `TlsConnectorService`&#39;s timeout setting.</span>
+    <span class="ident">tls_service</span>: <span class="ident">Tls</span>,
+
     <span class="ident">timeout</span>: <span class="ident">Duration</span>,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">St</span>, <span class="ident">Io</span><span class="op">&gt;</span> <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Connect</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">TlsConnectorService</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">St</span><span class="op">&gt;</span>
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">Tcp</span>, <span class="ident">Tls</span>, <span class="ident">IO</span><span class="op">&gt;</span> <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Connect</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">TlsConnectorService</span><span class="op">&lt;</span><span class="ident">Tcp</span>, <span class="ident">Tls</span><span class="op">&gt;</span>
 <span class="kw">where</span>
-    <span class="ident">S</span>: <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Connect</span>, <span class="ident">Response</span> <span class="op">=</span> <span class="ident">TcpConnection</span><span class="op">&lt;</span><span class="ident">Uri</span>, <span class="ident">Io</span><span class="op">&gt;</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="ident">ConnectError</span><span class="op">&gt;</span>
+    <span class="ident">Tcp</span>: <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Connect</span>, <span class="ident">Response</span> <span class="op">=</span> <span class="ident">TcpConnection</span><span class="op">&lt;</span><span class="ident">Uri</span>, <span class="ident">IO</span><span class="op">&gt;</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="ident">ConnectError</span><span class="op">&gt;</span>
         <span class="op">+</span> <span class="ident">Clone</span>
         <span class="op">+</span> <span class="lifetime">&#39;static</span>,
-    <span class="ident">St</span>: <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">TcpConnection</span><span class="op">&lt;</span><span class="ident">Uri</span>, <span class="ident">Io</span><span class="op">&gt;</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="ident">std::io::Error</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Clone</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
-    <span class="ident">Io</span>: <span class="ident">ConnectionIo</span>,
-    <span class="ident">St::Response</span>: <span class="ident">IntoConnectionIo</span>,
+    <span class="ident">Tls</span>: <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">TcpConnection</span><span class="op">&lt;</span><span class="ident">Uri</span>, <span class="ident">IO</span><span class="op">&gt;</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="ident">std::io::Error</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Clone</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+    <span class="ident">Tls::Response</span>: <span class="ident">IntoConnectionIo</span>,
+    <span class="ident">IO</span>: <span class="ident">ConnectionIo</span>,
 {
     <span class="kw">type</span> <span class="ident">Response</span> <span class="op">=</span> (<span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">ConnectionIo</span><span class="op">&gt;</span>, <span class="ident">Protocol</span>);
     <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">ConnectError</span>;
-    <span class="kw">type</span> <span class="ident">Future</span> <span class="op">=</span> <span class="ident">TlsConnectorFuture</span><span class="op">&lt;</span><span class="ident">St</span>, <span class="ident">S::Future</span>, <span class="ident">St::Future</span><span class="op">&gt;</span>;
+    <span class="kw">type</span> <span class="ident">Future</span> <span class="op">=</span> <span class="ident">TlsConnectorFuture</span><span class="op">&lt;</span><span class="ident">Tls</span>, <span class="ident">Tcp::Future</span>, <span class="ident">Tls::Future</span><span class="op">&gt;</span>;
 
     <span class="kw">fn</span> <span class="ident">poll_ready</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="macro">ready!</span>(<span class="self">self</span>.<span class="ident">tcp_service</span>.<span class="ident">poll_ready</span>(<span class="ident">cx</span>))<span class="question-mark">?</span>;
@@ -1287,7 +1526,7 @@
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">Io</span><span class="op">&gt;</span> <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Connect</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">TcpConnectorInnerService</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>
 <span class="kw">where</span>
-    <span class="ident">S</span>: <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">TcpConnect</span><span class="op">&lt;</span><span class="ident">Uri</span><span class="op">&gt;</span>, <span class="ident">Response</span> <span class="op">=</span> <span class="ident">TcpConnection</span><span class="op">&lt;</span><span class="ident">Uri</span>, <span class="ident">Io</span><span class="op">&gt;</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="ident">TcpConnectError</span><span class="op">&gt;</span>
+    <span class="ident">S</span>: <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">ConnectInfo</span><span class="op">&lt;</span><span class="ident">Uri</span><span class="op">&gt;</span>, <span class="ident">Response</span> <span class="op">=</span> <span class="ident">TcpConnection</span><span class="op">&lt;</span><span class="ident">Uri</span>, <span class="ident">Io</span><span class="op">&gt;</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="ident">TcpConnectError</span><span class="op">&gt;</span>
         <span class="op">+</span> <span class="ident">Clone</span>
         <span class="op">+</span> <span class="lifetime">&#39;static</span>,
 {
@@ -1298,7 +1537,7 @@
     <span class="macro">actix_service::forward_ready!</span>(<span class="ident">service</span>);
 
     <span class="kw">fn</span> <span class="ident">call</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">req</span>: <span class="ident">Connect</span>) -&gt; <span class="ident"><span class="self">Self</span>::Future</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TcpConnect::new</span>(<span class="ident">req</span>.<span class="ident">uri</span>).<span class="ident">set_addr</span>(<span class="ident">req</span>.<span class="ident">addr</span>);
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">ConnectInfo::new</span>(<span class="ident">req</span>.<span class="ident">uri</span>).<span class="ident">set_addr</span>(<span class="ident">req</span>.<span class="ident">addr</span>);
 
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">local_addr</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">local_address</span> {
             <span class="ident">req</span> <span class="op">=</span> <span class="ident">req</span>.<span class="ident">set_local_addr</span>(<span class="ident">local_addr</span>);
@@ -1337,8 +1576,8 @@
 }
 
 <span class="doccomment">/// Connector service for pooled Plain/Tls Tcp connections.</span>
-<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">ConnectorService</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">Io</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">ConnectorServicePriv</span><span class="op">&lt;</span>
-    <span class="ident">TcpConnectorService</span><span class="op">&lt;</span><span class="ident">TcpConnectorInnerService</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">ConnectorService</span><span class="op">&lt;</span><span class="ident">Svc</span>, <span class="ident">IO</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">ConnectorServicePriv</span><span class="op">&lt;</span>
+    <span class="ident">TcpConnectorService</span><span class="op">&lt;</span><span class="ident">TcpConnectorInnerService</span><span class="op">&lt;</span><span class="ident">Svc</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     <span class="ident">Rc</span><span class="op">&lt;</span>
         <span class="kw">dyn</span> <span class="ident">Service</span><span class="op">&lt;</span>
             <span class="ident">Connect</span>,
@@ -1350,7 +1589,7 @@
             <span class="op">&gt;</span>,
         <span class="op">&gt;</span>,
     <span class="op">&gt;</span>,
-    <span class="ident">Io</span>,
+    <span class="ident">IO</span>,
     <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">ConnectionIo</span><span class="op">&gt;</span>,
 <span class="op">&gt;</span>;
 
@@ -1449,7 +1688,7 @@
     <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
 
     <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">resolver</span>() -&gt; <span class="ident">Resolver</span> {
-        <span class="ident">Resolver::Default</span>
+        <span class="ident">Resolver::default</span>()
     }
 }
 
@@ -1491,8 +1730,7 @@
             }
         }
 
-        <span class="comment">// dns struct is cached in thread local.</span>
-        <span class="comment">// so new client constructor can reuse the existing dns resolver.</span>
+        <span class="comment">// resolver struct is cached in thread local so new clients can reuse the existing instance</span>
         <span class="macro">thread_local!</span> {
             <span class="kw">static</span> <span class="ident">TRUST_DNS_RESOLVER</span>: <span class="ident">RefCell</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Resolver</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">RefCell::new</span>(<span class="prelude-val">None</span>);
         }
@@ -1500,8 +1738,10 @@
         <span class="comment">// get from thread local or construct a new trust-dns resolver.</span>
         <span class="ident">TRUST_DNS_RESOLVER</span>.<span class="ident">with</span>(<span class="op">|</span><span class="ident">local</span><span class="op">|</span> {
             <span class="kw">let</span> <span class="ident">resolver</span> <span class="op">=</span> <span class="ident">local</span>.<span class="ident">borrow</span>().<span class="ident">as_ref</span>().<span class="ident">map</span>(<span class="ident">Clone::clone</span>);
+
             <span class="kw">match</span> <span class="ident">resolver</span> {
                 <span class="prelude-val">Some</span>(<span class="ident">resolver</span>) =&gt; <span class="ident">resolver</span>,
+
                 <span class="prelude-val">None</span> =&gt; {
                     <span class="kw">let</span> (<span class="ident">cfg</span>, <span class="ident">opts</span>) <span class="op">=</span> <span class="kw">match</span> <span class="ident">read_system_conf</span>() {
                         <span class="prelude-val">Ok</span>((<span class="ident">cfg</span>, <span class="ident">opts</span>)) =&gt; (<span class="ident">cfg</span>, <span class="ident">opts</span>),
@@ -1514,15 +1754,54 @@
                     <span class="kw">let</span> <span class="ident">resolver</span> <span class="op">=</span> <span class="ident">TokioAsyncResolver::tokio</span>(<span class="ident">cfg</span>, <span class="ident">opts</span>).<span class="ident">unwrap</span>();
 
                     <span class="comment">// box trust dns resolver and put it in thread local.</span>
-                    <span class="kw">let</span> <span class="ident">resolver</span> <span class="op">=</span> <span class="ident">Resolver::new_custom</span>(<span class="ident">TrustDnsResolver</span>(<span class="ident">resolver</span>));
+                    <span class="kw">let</span> <span class="ident">resolver</span> <span class="op">=</span> <span class="ident">Resolver::custom</span>(<span class="ident">TrustDnsResolver</span>(<span class="ident">resolver</span>));
                     <span class="kw-2">*</span><span class="ident">local</span>.<span class="ident">borrow_mut</span>() <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">resolver</span>.<span class="ident">clone</span>());
+
                     <span class="ident">resolver</span>
                 }
             }
         })
     }
 }
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;dangerous-h2c&quot;</span>)]</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
+<span class="kw">mod</span> <span class="ident">tests</span> {
+    <span class="kw">use</span> <span class="ident">std::convert::Infallible</span>;
+
+    <span class="kw">use</span> <span class="ident">actix_http</span>::{<span class="ident">HttpService</span>, <span class="ident">Request</span>, <span class="ident">Response</span>, <span class="ident">Version</span>};
+    <span class="kw">use</span> <span class="ident">actix_http_test::test_server</span>;
+    <span class="kw">use</span> <span class="ident">actix_service::ServiceFactoryExt</span> <span class="kw">as</span> <span class="kw">_</span>;
+
+    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Client</span>;
+
+    <span class="attribute">#[<span class="ident">actix_rt::test</span>]</span>
+    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">h2c_connector</span>() {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">srv</span> <span class="op">=</span> <span class="ident">test_server</span>(<span class="op">|</span><span class="op">|</span> {
+            <span class="ident">HttpService::build</span>()
+                .<span class="ident">h2</span>(<span class="op">|</span><span class="ident">_req</span>: <span class="ident">Request</span><span class="op">|</span> <span class="kw">async</span> { <span class="prelude-val">Ok</span>::<span class="op">&lt;</span><span class="kw">_</span>, <span class="ident">Infallible</span><span class="op">&gt;</span>(<span class="ident">Response::ok</span>()) })
+                .<span class="ident">tcp</span>()
+                .<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> ())
+        })
+        .<span class="kw">await</span>;
+
+        <span class="kw">let</span> <span class="ident">connector</span> <span class="op">=</span> <span class="ident">Connector</span> {
+            <span class="ident">connector</span>: <span class="ident">TcpConnector::new</span>(<span class="ident">resolver::resolver</span>()).<span class="ident">service</span>(),
+            <span class="ident">config</span>: <span class="ident">ConnectorConfig::default</span>(),
+            <span class="ident">tls</span>: <span class="ident">OurTlsConnector::None</span>,
+        };
+
+        <span class="kw">let</span> <span class="ident">client</span> <span class="op">=</span> <span class="ident">Client::builder</span>().<span class="ident">connector</span>(<span class="ident">connector</span>).<span class="ident">finish</span>();
+
+        <span class="kw">let</span> <span class="ident">request</span> <span class="op">=</span> <span class="ident">client</span>.<span class="ident">get</span>(<span class="ident">srv</span>.<span class="ident">surl</span>(<span class="string">&quot;/&quot;</span>)).<span class="ident">send</span>();
+        <span class="kw">let</span> <span class="ident">response</span> <span class="op">=</span> <span class="ident">request</span>.<span class="kw">await</span>.<span class="ident">unwrap</span>();
+        <span class="macro">assert!</span>(<span class="ident">response</span>.<span class="ident">status</span>().<span class="ident">is_success</span>());
+        <span class="macro">assert_eq!</span>(<span class="ident">response</span>.<span class="ident">version</span>(), <span class="ident">Version::HTTP_2</span>);
+
+        <span class="ident">srv</span>.<span class="ident">stop</span>().<span class="kw">await</span>;
+    }
+}
 </code></pre></div>
-</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="awc" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>
-    <script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script>
+</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="awc" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.59.0-nightly (51e8031e1 2021-12-25)" ></div>
 </body></html>
