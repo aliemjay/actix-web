@@ -186,17 +186,20 @@
 <span id="184">184</span>
 <span id="185">185</span>
 <span id="186">186</span>
+<span id="187">187</span>
+<span id="188">188</span>
+<span id="189">189</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Essentials helper functions and types for application registration.</span>
 
-<span class="kw">use</span> <span class="ident">std::future::Future</span>;
+<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">error::Error</span> <span class="kw">as</span> <span class="ident">StdError</span>, <span class="ident">future::Future</span>};
 
 <span class="kw">use</span> <span class="ident">actix_http::Method</span>;
 <span class="kw">use</span> <span class="ident">actix_router::IntoPatterns</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">bytes</span>::{<span class="ident">Buf</span>, <span class="ident">BufMut</span>, <span class="ident">Bytes</span>, <span class="ident">BytesMut</span>};
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">error::BlockingError</span>, <span class="ident">extract::FromRequest</span>, <span class="ident">handler::Handler</span>, <span class="ident">resource::Resource</span>,
-    <span class="ident">route::Route</span>, <span class="ident">scope::Scope</span>, <span class="ident">service::WebService</span>, <span class="ident">Responder</span>,
+    <span class="ident">body::MessageBody</span>, <span class="ident">error::BlockingError</span>, <span class="ident">extract::FromRequest</span>, <span class="ident">handler::Handler</span>,
+    <span class="ident">resource::Resource</span>, <span class="ident">route::Route</span>, <span class="ident">scope::Scope</span>, <span class="ident">service::WebService</span>, <span class="ident">Responder</span>,
 };
 
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::config::ServiceConfig</span>;
@@ -334,11 +337,14 @@
 <span class="doccomment">///         web::to(index))</span>
 <span class="doccomment">/// );</span>
 <span class="doccomment">/// ```</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">Args</span><span class="op">&gt;</span>(<span class="ident">handler</span>: <span class="ident">F</span>) -&gt; <span class="ident">Route</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">Args</span>, <span class="ident">R</span><span class="op">&gt;</span>(<span class="ident">handler</span>: <span class="ident">F</span>) -&gt; <span class="ident">Route</span>
 <span class="kw">where</span>
-    <span class="ident">F</span>: <span class="ident">Handler</span><span class="op">&lt;</span><span class="ident">Args</span><span class="op">&gt;</span>,
+    <span class="ident">F</span>: <span class="ident">Handler</span><span class="op">&lt;</span><span class="ident">Args</span>, <span class="ident">R</span><span class="op">&gt;</span>,
     <span class="ident">Args</span>: <span class="ident">FromRequest</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
-    <span class="ident">F::Output</span>: <span class="ident">Responder</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+    <span class="ident">R</span>: <span class="ident">Future</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+    <span class="ident">R::Output</span>: <span class="ident">Responder</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+    <span class="op">&lt;</span><span class="ident">R::Output</span> <span class="kw">as</span> <span class="ident">Responder</span><span class="op">&gt;</span><span class="ident">::Body</span>: <span class="ident">MessageBody</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+    <span class="op">&lt;</span><span class="op">&lt;</span><span class="ident">R::Output</span> <span class="kw">as</span> <span class="ident">Responder</span><span class="op">&gt;</span><span class="ident">::Body</span> <span class="kw">as</span> <span class="ident">MessageBody</span><span class="op">&gt;</span><span class="ident">::Error</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">StdError</span> <span class="op">+</span> <span class="lifetime">&#39;static</span><span class="op">&gt;</span><span class="op">&gt;</span>,
 {
     <span class="ident">Route::new</span>().<span class="ident">to</span>(<span class="ident">handler</span>)
 }

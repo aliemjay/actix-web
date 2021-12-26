@@ -830,6 +830,9 @@
 <span id="828">828</span>
 <span id="829">829</span>
 <span id="830">830</span>
+<span id="831">831</span>
+<span id="832">832</span>
+<span id="833">833</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">cell::RefCell</span>, <span class="ident">fmt</span>, <span class="ident">future::Future</span>, <span class="ident">marker::PhantomData</span>, <span class="ident">rc::Rc</span>};
 
 <span class="kw">use</span> <span class="ident">actix_http</span>::{<span class="ident">body::BoxBody</span>, <span class="ident">Extensions</span>};
@@ -852,7 +855,7 @@
         <span class="ident">BoxedHttpService</span>, <span class="ident">BoxedHttpServiceFactory</span>, <span class="ident">HttpServiceFactory</span>, <span class="ident">ServiceRequest</span>,
         <span class="ident">ServiceResponse</span>,
     },
-    <span class="ident">Error</span>, <span class="ident">FromRequest</span>, <span class="ident">HttpResponse</span>, <span class="ident">Responder</span>,
+    <span class="ident">BoxError</span>, <span class="ident">Error</span>, <span class="ident">FromRequest</span>, <span class="ident">HttpResponse</span>, <span class="ident">Responder</span>,
 };
 
 <span class="doccomment">/// A collection of [`Route`]s that respond to the same path pattern.</span>
@@ -1062,11 +1065,14 @@
     <span class="doccomment">/// # fn index(req: HttpRequest) -&gt; HttpResponse { unimplemented!() }</span>
     <span class="doccomment">/// App::new().service(web::resource(&quot;/&quot;).route(web::route().to(index)));</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">Args</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">handler</span>: <span class="ident">F</span>) -&gt; <span class="self">Self</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">Args</span>, <span class="ident">R</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">handler</span>: <span class="ident">F</span>) -&gt; <span class="self">Self</span>
     <span class="kw">where</span>
-        <span class="ident">F</span>: <span class="ident">Handler</span><span class="op">&lt;</span><span class="ident">Args</span><span class="op">&gt;</span>,
+        <span class="ident">F</span>: <span class="ident">Handler</span><span class="op">&lt;</span><span class="ident">Args</span>, <span class="ident">R</span><span class="op">&gt;</span>,
         <span class="ident">Args</span>: <span class="ident">FromRequest</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
-        <span class="ident">F::Output</span>: <span class="ident">Responder</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+        <span class="ident">R</span>: <span class="ident">Future</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+        <span class="ident">R::Output</span>: <span class="ident">Responder</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+        <span class="op">&lt;</span><span class="ident">R::Output</span> <span class="kw">as</span> <span class="ident">Responder</span><span class="op">&gt;</span><span class="ident">::Body</span>: <span class="ident">MessageBody</span>,
+        <span class="op">&lt;</span><span class="op">&lt;</span><span class="ident">R::Output</span> <span class="kw">as</span> <span class="ident">Responder</span><span class="op">&gt;</span><span class="ident">::Body</span> <span class="kw">as</span> <span class="ident">MessageBody</span><span class="op">&gt;</span><span class="ident">::Error</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">BoxError</span><span class="op">&gt;</span>,
     {
         <span class="self">self</span>.<span class="ident">routes</span>.<span class="ident">push</span>(<span class="ident">Route::new</span>().<span class="ident">to</span>(<span class="ident">handler</span>));
         <span class="self">self</span>

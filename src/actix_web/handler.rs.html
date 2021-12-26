@@ -150,13 +150,17 @@
 <span id="148">148</span>
 <span id="149">149</span>
 <span id="150">150</span>
+<span id="151">151</span>
+<span id="152">152</span>
+<span id="153">153</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::future::Future</span>;
 
 <span class="kw">use</span> <span class="ident">actix_service</span>::{<span class="ident">boxed</span>, <span class="ident">fn_service</span>};
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
+    <span class="ident">body::MessageBody</span>,
     <span class="ident">service</span>::{<span class="ident">BoxedHttpServiceFactory</span>, <span class="ident">ServiceRequest</span>, <span class="ident">ServiceResponse</span>},
-    <span class="ident">FromRequest</span>, <span class="ident">HttpResponse</span>, <span class="ident">Responder</span>,
+    <span class="ident">BoxError</span>, <span class="ident">FromRequest</span>, <span class="ident">HttpResponse</span>, <span class="ident">Responder</span>,
 };
 
 <span class="doccomment">/// The interface for request handlers.</span>
@@ -169,7 +173,7 @@
 <span class="doccomment">///   [`HttpResponse`] (i.e., it implements the [`Responder`] trait).</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// # Compiler Errors</span>
-<span class="doccomment">/// If you get the error `the trait Handler&lt;_&gt; is not implemented`, then your handler does not</span>
+<span class="doccomment">/// If you get the error `the trait Handler&lt;_, _, _&gt; is not implemented`, then your handler does not</span>
 <span class="doccomment">/// fulfill one or more of the above requirements.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// Unfortunately we cannot provide a better compile error message (while keeping the trait&#39;s</span>
@@ -229,18 +233,22 @@
 <span class="doccomment">/// [arity]: https://en.wikipedia.org/wiki/Arity</span>
 <span class="doccomment">/// [`from_request`]: FromRequest::from_request</span>
 <span class="doccomment">/// [on_unimpl]: https://github.com/rust-lang/rust/issues/29628</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Handler</span><span class="op">&lt;</span><span class="ident">Args</span><span class="op">&gt;</span>: <span class="ident">Clone</span> <span class="op">+</span> <span class="lifetime">&#39;static</span> {
-    <span class="kw">type</span> <span class="ident">Output</span>;
-    <span class="kw">type</span> <span class="ident">Future</span>: <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::Output</span><span class="op">&gt;</span>;
-
-    <span class="kw">fn</span> <span class="ident">call</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">args</span>: <span class="ident">Args</span>) -&gt; <span class="ident"><span class="self">Self</span>::Future</span>;
+<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Handler</span><span class="op">&lt;</span><span class="ident">Args</span>, <span class="ident">R</span><span class="op">&gt;</span>: <span class="ident">Clone</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>
+<span class="kw">where</span>
+    <span class="ident">R</span>: <span class="ident">Future</span>,
+    <span class="ident">R::Output</span>: <span class="ident">Responder</span>,
+{
+    <span class="kw">fn</span> <span class="ident">call</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">args</span>: <span class="ident">Args</span>) -&gt; <span class="ident">R</span>;
 }
 
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">handler_service</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">Args</span><span class="op">&gt;</span>(<span class="ident">handler</span>: <span class="ident">F</span>) -&gt; <span class="ident">BoxedHttpServiceFactory</span>
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">handler_service</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">Args</span>, <span class="ident">R</span><span class="op">&gt;</span>(<span class="ident">handler</span>: <span class="ident">F</span>) -&gt; <span class="ident">BoxedHttpServiceFactory</span>
 <span class="kw">where</span>
-    <span class="ident">F</span>: <span class="ident">Handler</span><span class="op">&lt;</span><span class="ident">Args</span><span class="op">&gt;</span>,
+    <span class="ident">F</span>: <span class="ident">Handler</span><span class="op">&lt;</span><span class="ident">Args</span>, <span class="ident">R</span><span class="op">&gt;</span>,
     <span class="ident">Args</span>: <span class="ident">FromRequest</span>,
-    <span class="ident">F::Output</span>: <span class="ident">Responder</span>,
+    <span class="ident">R</span>: <span class="ident">Future</span>,
+    <span class="ident">R::Output</span>: <span class="ident">Responder</span>,
+    <span class="op">&lt;</span><span class="ident">R::Output</span> <span class="kw">as</span> <span class="ident">Responder</span><span class="op">&gt;</span><span class="ident">::Body</span>: <span class="ident">MessageBody</span>,
+    <span class="op">&lt;</span><span class="op">&lt;</span><span class="ident">R::Output</span> <span class="kw">as</span> <span class="ident">Responder</span><span class="op">&gt;</span><span class="ident">::Body</span> <span class="kw">as</span> <span class="ident">MessageBody</span><span class="op">&gt;</span><span class="ident">::Error</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">BoxError</span><span class="op">&gt;</span>,
 {
     <span class="ident">boxed::factory</span>(<span class="ident">fn_service</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">req</span>: <span class="ident">ServiceRequest</span><span class="op">|</span> {
         <span class="kw">let</span> <span class="ident">handler</span> <span class="op">=</span> <span class="ident">handler</span>.<span class="ident">clone</span>();
@@ -272,16 +280,14 @@
 <span class="doccomment">/// factory_tuple! { A B C }  // implements Handler for types: fn(A, B, C) -&gt; R</span>
 <span class="doccomment">/// ```</span>
 <span class="macro">macro_rules!</span> <span class="ident">factory_tuple</span> ({ $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">param</span>:<span class="ident">ident</span>)<span class="op">*</span> } =&gt; {
-    <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">Func</span>, <span class="ident">Fut</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">param</span>,)<span class="kw-2">*</span><span class="op">&gt;</span> <span class="ident">Handler</span><span class="op">&lt;</span>($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">param</span>,)<span class="kw-2">*</span>)<span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Func</span>
-    <span class="kw">where</span> <span class="ident">Func</span>: <span class="ident">Fn</span>($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">param</span>),<span class="kw-2">*</span>) -&gt; <span class="ident">Fut</span> <span class="op">+</span> <span class="ident">Clone</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
-          <span class="ident">Fut</span>: <span class="ident">Future</span>,
+    <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">Func</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">param</span>,)<span class="op">*</span> <span class="ident">R</span><span class="op">&gt;</span> <span class="ident">Handler</span><span class="op">&lt;</span>($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">param</span>,)<span class="kw-2">*</span>), <span class="ident">R</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Func</span>
+    <span class="kw">where</span> <span class="ident">Func</span>: <span class="ident">Fn</span>($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">param</span>),<span class="kw-2">*</span>) -&gt; <span class="ident">R</span> <span class="op">+</span> <span class="ident">Clone</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+          <span class="ident">R</span>: <span class="ident">Future</span>,
+          <span class="ident">R::Output</span>: <span class="ident">Responder</span>,
     {
-        <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident">Fut::Output</span>;
-        <span class="kw">type</span> <span class="ident">Future</span> <span class="op">=</span> <span class="ident">Fut</span>;
-
         <span class="attribute">#[<span class="ident">inline</span>]</span>
         <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">non_snake_case</span>)]</span>
-        <span class="kw">fn</span> <span class="ident">call</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">param</span>,)<span class="kw-2">*</span>): ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">param</span>,)<span class="kw-2">*</span>)) -&gt; <span class="ident"><span class="self">Self</span>::Future</span> {
+        <span class="kw">fn</span> <span class="ident">call</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">param</span>,)<span class="kw-2">*</span>): ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">param</span>,)<span class="kw-2">*</span>)) -&gt; <span class="ident">R</span> {
             (<span class="self">self</span>)($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">param</span>,)<span class="kw-2">*</span>)
         }
     }
