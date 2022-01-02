@@ -4,6 +4,7 @@ mod compat;
 mod condition;
 mod default_headers;
 mod err_handlers;
+mod helper;
 mod logger;
 #[cfg(test)]
 mod noop;

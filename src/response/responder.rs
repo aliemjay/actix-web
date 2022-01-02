@@ -57,8 +57,11 @@ pub trait Responder {
     }
 }
 
-impl Responder for HttpResponse {
-    type Body = BoxBody;
+impl<B> Responder for HttpResponse<B>
+where
+    B: MessageBody + 'static,
+{
+    type Body = B;
 
     #[inline]
     fn respond_to(self, _: &HttpRequest) -> HttpResponse<Self::Body> {
