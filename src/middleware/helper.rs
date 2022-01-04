@@ -1,6 +1,6 @@
 //! Middlware helper.
 
-use std::{fmt, future::Future, rc::Rc};
+use std::{fmt, future::Future, rc::Rc, marker::PhantomData};
 
 use actix_utils::future::{ready, Ready};
 use futures_core::future::LocalBoxFuture;
@@ -11,18 +11,18 @@ use crate::{
     Error, HttpRequest, HttpResponse, Responder,
 };
 
-struct Helper<F>(F);
+struct Helper<F, S>(F, PhantomData<fn(S)>);
 
-impl<F> Helper<F> {
-    fn new(f: F) -> Self
+impl<F, S> Helper<F, S>
 where
-        //Self: Transform<S, ServiceRequest>,
-    {
-        Self(f)
+    Self: Transform<S, ServiceRequest>
+{
+    fn new(f: F) -> Self {
+        Self(f, PhantomData)
     }
 }
 
-impl<S, F, Fut, R> Transform<S, ServiceRequest> for Helper<F>
+impl<S, F, Fut, R> Transform<S, ServiceRequest> for Helper<F, S>
 where
     Rc<S>: NextService,
     F: Fn(HttpRequest, Payload, Rc<S>) -> Fut + Clone,
@@ -154,7 +154,14 @@ mod tests {
 
         let srv = init_service(
             App::new()
-                //.wrap(Helper::new(|req, pl, next| async move { next.call(&mut req, pl).await }))
+                .wrap(Helper::new(|mut req, pl, next| async move {
+                    fn check<T: NextService>(_: &T) {}
+                    check(&next);
+                    //NextService::call(&next, &mut req, pl).await
+                    use crate::middleware::helper::NextService;
+                    next.call(&mut req, pl);
+                    Ok("hello")
+                }))
                 .wrap(Helper::new(|req, pl, next| async move {
                     mw(req, pl, next).await
                 }))
